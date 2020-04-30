@@ -220,10 +220,10 @@ background: url("photos/P_20180528_134444_BF.jpg");
             transition: .5s;
             transform: scale(2);
         }
-#wtp{
-    position: fixed;
-    bottom: 15px;
-    right: 15px;
-    width: 60px;
-    height:55px;
-}
+        #wtp{
+           position: fixed;
+           bottom: 15px;
+           right: 15px;
+           width: 60px;
+           height:55px;
+              }
