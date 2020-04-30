@@ -63,7 +63,7 @@ background: url("photos/P_20180528_134444_BF.jpg");
     }
     #skill{
         width:100%;
-        height:500px;
+        height:auto;
         background: linear-gradient(to top,skyblue,black);
         color: white;
         font-family: fantasy;
