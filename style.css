@@ -126,6 +126,16 @@ background: url("photos/P_20180528_134444_BF.jpg");
         animation-name:ds;
         width: 50%;
         }
+    @keyframes android{
+        from {width:0%;}
+        to {width:10%;}
+        
+        }
+    #dsalgo{
+        animation-duration: 5s;
+        animation-name:android;
+        width: 10%;
+        }
     #familybtn{
         width: 100%;
         height: auto;
