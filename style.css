@@ -136,58 +136,8 @@ background: url("photos/P_20180528_134444_BF.jpg");
         animation-name:android;
         width: 10%;
         }
-    #familybtn{
-        width: 100%;
-        height: auto;
-        text-align: center;
-        
-        
-        padding: 10px;
-        font-family: cursive;
-        font-size: 30px;
-        
-    }
-    #familybtn:hover {
-        background: radial-gradient(lightblue,aqua,blue);
-        
-    } 
 
-              section{
-                  position:relative;
-                  width:100%;
-                  height:auto;
-                  display:flex;
-                  align-items: center;
-                  justify-content: center;
-                  overflow:hidden;
-              }
-              .video{
-                  position:absolute;
-                  top:0;
-                  left:0;
-                  width:100%
-              }
-              #grid{
-
-                  height: auto;
-                  z-index:1;
-                  opacity: 0.9;
-
-              }
-
-              .no-gutters{
-                  margin:0px;
-                  padding: 0px;
-              }
-              #grid img{
-                  margin : 5px;
-              }
-            #carouselExampleCaptions{
-            
-            height: auto;
-            width: 100%;
-            
-        }
+   
     #footer{
         width:100%;
         height:auto;
