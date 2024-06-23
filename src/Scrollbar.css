@@ -1,0 +1,11 @@
+/* Hide the scrollbar */
+body {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+  overflow: -moz-scrollbars-none; /* Firefox */
+}
+
+/* Define scrollbar styles (optional, for WebKit browsers like Chrome and Safari) */
+::-webkit-scrollbar {
+  width: 0; /* Set the width of the scrollbar to 0 */
+}
