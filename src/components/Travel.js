@@ -99,7 +99,26 @@ const places = [
   { name: 'Kerala Backwaters', coordinates: [76.3522, 9.4981], description: 'Scenic Waterways' },
   { name: 'Thiruvananthapuram', coordinates: [76.9366, 8.5241], description: 'Capital of Kerala' },
   { name: 'Visakhapatnam', coordinates: [83.2185, 17.6868], description: 'City of Destiny' },
-  { name: 'Bangalore', coordinates: [77.5946, 12.9716], description: 'Tech Hub and Garden City of India'}
+  { name: 'Bangalore', coordinates: [77.5946, 12.9716], description: 'Tech Hub and Garden City of India'},
+  { name: 'Guwahati', coordinates: [91.7362, 26.1445], description: 'Gateway to Northeast India' },
+  { name: 'Kaziranga National Park', coordinates: [93.3630, 26.5775], description: 'Famous for One-Horned Rhinos' },
+  { name: 'Tezpur', coordinates: [92.7984, 26.6338], description: 'Cultural and Historical Hub' },
+  { name: 'Bomdila', coordinates: [92.4065, 27.2644], description: 'Scenic Himalayan Town' },
+  { name: 'Dirang Valley', coordinates: [92.2510, 27.3509], description: 'Serene Valley with Monasteries' },
+  { name: 'Thembang', coordinates: [92.2911, 27.4591], description: 'Heritage Village in Arunachal Pradesh' },
+  { name: 'Sela Pass', coordinates: [92.2511, 27.5079], description: 'High Altitude Himalayan Pass' },
+  { name: 'Tawang', coordinates: [91.8668, 27.5860], description: 'Monasteries and Snow-Capped Mountains' },
+  { name: 'Shillong', coordinates: [91.8838, 25.5788], description: 'Scotland of the East' },
+  { name: 'Cherrapunji', coordinates: [91.7312, 25.2866], description: 'One of the Wettest Places on Earth' },
+  { name: 'Dawki', coordinates: [91.6970, 25.2003], description: 'Crystal Clear River and Indo-Bangladesh Border' },
+  { name: 'Shnonpedong', coordinates: [91.7191, 25.1992], description: 'Scenic Riverside Camping Destination' },
+  { name: 'Coorg', coordinates: [75.7397, 12.3375], description: 'Coffee Plantations and Scenic Hills' },
+  { name: 'Udupi', coordinates: [74.7462, 13.3409], description: 'Famous for Temples and Cuisine' },
+  { name: 'Mysore', coordinates: [76.6394, 12.2958], description: 'City of Palaces' },
+  { name: 'Mangalore', coordinates: [74.8560, 12.9141], description: 'Coastal City with Beautiful Beaches' },
+  { name: 'Gokarna', coordinates: [74.3144, 14.5503], description: 'Pristine Beaches and Pilgrimage Site' },
+  { name: 'Ayodhya', coordinates: [82.1946, 26.7994], description: 'Birthplace of Lord Rama and Spiritual Hub' },
+  { name: 'Barsana', coordinates: [77.3779, 27.6435], description: 'Birthplace of Radha and Famous for Lathmar Holi' }
 ];
 
 const Travel = () => {
@@ -149,7 +168,7 @@ const Travel = () => {
             <circle
               cx={0}
               cy={0}
-              r={3}
+              r={2.7}
               fill="#FF5722"
               stroke="#FFF"
               strokeWidth={0.5}
