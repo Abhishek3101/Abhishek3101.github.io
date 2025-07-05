@@ -118,7 +118,26 @@ const places = [
   { name: 'Mangalore', coordinates: [74.8560, 12.9141], description: 'Coastal City with Beautiful Beaches' },
   { name: 'Gokarna', coordinates: [74.3144, 14.5503], description: 'Pristine Beaches and Pilgrimage Site' },
   { name: 'Ayodhya', coordinates: [82.1946, 26.7994], description: 'Birthplace of Lord Rama and Spiritual Hub' },
-  { name: 'Barsana', coordinates: [77.3779, 27.6435], description: 'Birthplace of Radha and Famous for Lathmar Holi' }
+  { name: 'Barsana', coordinates: [77.3779, 27.6435], description: 'Birthplace of Radha and Famous for Lathmar Holi' },
+  { name: 'Surat', coordinates: [72.8311, 21.1702], description: 'Diamond City of India' },
+  { name: 'Ahmedabad', coordinates: [72.5714, 23.0225], description: 'Heritage City of India' },
+  { name: 'Manali', coordinates: [77.1887, 32.2396], description: 'Gateway to the Himalayas' },
+  { name: 'Jibhi', coordinates: [77.3374, 31.5744], description: 'Hidden Himalayan Hamlet' },
+  { name: 'Sangla Valley', coordinates: [78.4482, 31.4194], description: 'Beautiful Baspa Valley' },
+  { name: 'Kalpa Valley', coordinates: [78.2518, 31.5381], description: 'Apple Orchards and Kinnaur Kailash' },
+  { name: 'Kaza', coordinates: [78.2232, 32.2266], description: 'Heart of Spiti Valley' },
+  { name: 'Chandratal', coordinates: [77.6151, 32.4754], description: 'Moon Lake of Spiti' },
+  { name: 'Nako', coordinates: [78.6289, 31.8837], description: 'Lake Village on Indo-Tibet Highway' },
+  { name: 'Tabo', coordinates: [78.3915, 32.0964], description: 'Ancient Monastery Town' },
+  { name: 'Dhankar', coordinates: [78.2172, 32.0983], description: 'Cliffside Monastery Village' },
+  { name: 'Hikkim', coordinates: [78.0065, 32.2432], description: 'Home to World’s Highest Post Office' },
+  { name: 'Komic', coordinates: [78.0451, 32.2461], description: 'Highest Village with Motorable Road' },
+  { name: 'Langza', coordinates: [77.9935, 32.2812], description: 'Fossil Village with Giant Buddha Statue' },
+  { name: 'Losar', coordinates: [77.7545, 32.6036], description: 'Last Village before Kunzum Pass' },
+  { name: 'Kunzum Pass', coordinates: [77.6101, 32.5512], description: 'High Mountain Pass to Spiti' },
+  { name: 'Rohtang Pass', coordinates: [77.2485, 32.3664], description: 'Snowy Gateway to Lahaul-Spiti' },
+  { name: 'Key Monastery', coordinates: [78.0566, 32.2854], description: 'Iconic Buddhist Monastery of Spiti' },
+  { name: 'Wayanad', coordinates: [76.1320, 11.6854], description: 'Lush Green Hills and Wildlife Sanctuaries' }
 ];
 
 const Travel = () => {
