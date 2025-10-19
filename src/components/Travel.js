@@ -7,6 +7,8 @@ import {
 } from 'react-simple-maps';
 import { Box, Heading, Text } from '@chakra-ui/react';
 import indiaTopoJson from '../map/india.json'
+import worldTopoJson from '../map/world.json';
+import vietnamTopoJson from '../map/vietnam.json';
 
 // Tooltip component
 const CustomTooltip = ({ x, y, visible, content }) => {
@@ -137,7 +139,13 @@ const places = [
   { name: 'Kunzum Pass', coordinates: [77.6101, 32.5512], description: 'High Mountain Pass to Spiti' },
   { name: 'Rohtang Pass', coordinates: [77.2485, 32.3664], description: 'Snowy Gateway to Lahaul-Spiti' },
   { name: 'Key Monastery', coordinates: [78.0566, 32.2854], description: 'Iconic Buddhist Monastery of Spiti' },
-  { name: 'Wayanad', coordinates: [76.1320, 11.6854], description: 'Lush Green Hills and Wildlife Sanctuaries' }
+  { name: 'Wayanad', coordinates: [76.1320, 11.6854], description: 'Lush Green Hills and Wildlife Sanctuaries' },
+  { name: 'Hanoi', coordinates: [105.8544, 21.0285], description: 'Capital of Vietnam' },
+  { name: 'Ha Long Bay', coordinates: [107.0581, 20.9101], description: 'UNESCO Heritage Bay' },
+  { name: 'Da Nang', coordinates: [108.2022, 16.0544], description: 'Coastal City with Beaches & Marble Mountains' },
+  { name: 'Ho Chi Minh City', coordinates: [106.6297, 10.8231], description: 'Southern Business Hub' },
+  { name: 'Cu Chi Tunnels', coordinates: [106.5012, 11.1467], description: 'Historic War-Era Tunnel Network' },
+  { name: 'Satish Dhawan Space Centre', coordinates: [80.228, 13.732], description: 'Indian Satellite Launch Site' }
 ];
 
 const Travel = () => {
@@ -157,6 +165,28 @@ const Travel = () => {
       <Heading as="h3" size="lg" color="gray.900" textAlign="center">
         Places I've Been
       </Heading>
+
+      {/* World Map */}
+      <ComposableMap
+        projectionConfig={{ scale: 140 }}
+        width={800}
+        height={400}
+      >
+        <Geographies geography={worldTopoJson}>
+          {({ geographies }) =>
+            geographies.map((geo) => (
+              <Geography
+                key={geo.rsmKey}
+                geography={geo}
+                fill={["IND", "VNM"].includes(geo.properties.ISO_A3) ? '#66BB6A' : '#E0E0E0'}
+                stroke="#607D8B"
+              />
+            ))
+          }
+        </Geographies>
+      </ComposableMap>
+
+      {/* India Map */}
       <ComposableMap
         projection="geoMercator"
         projectionConfig={{
@@ -195,6 +225,29 @@ const Travel = () => {
             />
           </Marker>
         ))}
+      </ComposableMap>
+
+       {/* Vietnam Map */}
+      <Heading as="h4" size="md" color="gray.800" textAlign="center" mt={6}>
+        Vietnam
+      </Heading>
+      <ComposableMap
+        projection="geoMercator"
+        projectionConfig={{ scale: 1100, center: [108.2772, 14.0583] }}
+        height={300}
+      >
+        <Geographies geography={vietnamTopoJson}>
+          {({ geographies }) =>
+            geographies.map((geo) => (
+              <Geography
+                key={geo.rsmKey}
+                geography={geo}
+                fill="#C5E1A5"
+                stroke="#37474F"
+              />
+            ))
+          }
+        </Geographies>
       </ComposableMap>
       <CustomTooltip {...tooltip} />
     </Box>
