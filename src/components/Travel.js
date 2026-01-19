@@ -140,12 +140,15 @@ const places = [
   { name: 'Rohtang Pass', coordinates: [77.2485, 32.3664], description: 'Snowy Gateway to Lahaul-Spiti' },
   { name: 'Key Monastery', coordinates: [78.0566, 32.2854], description: 'Iconic Buddhist Monastery of Spiti' },
   { name: 'Wayanad', coordinates: [76.1320, 11.6854], description: 'Lush Green Hills and Wildlife Sanctuaries' },
-  { name: 'Hanoi', coordinates: [105.8544, 21.0285], description: 'Capital of Vietnam' },
-  { name: 'Ha Long Bay', coordinates: [107.0581, 20.9101], description: 'UNESCO Heritage Bay' },
-  { name: 'Da Nang', coordinates: [108.2022, 16.0544], description: 'Coastal City with Beaches & Marble Mountains' },
-  { name: 'Ho Chi Minh City', coordinates: [106.6297, 10.8231], description: 'Southern Business Hub' },
-  { name: 'Cu Chi Tunnels', coordinates: [106.5012, 11.1467], description: 'Historic War-Era Tunnel Network' },
-  { name: 'Satish Dhawan Space Centre', coordinates: [80.228, 13.732], description: 'Indian Satellite Launch Site' }
+  { name: 'Satish Dhawan Space Centre', coordinates: [80.228, 13.732], description: 'Indian Satellite Launch Site' },
+  { name: 'Chikmagalur', coordinates: [75.7720, 13.3161], description: 'Coffee Land of Karnataka' },
+  { name: 'Jamnagar', coordinates: [70.0667, 22.4707], description: 'Brass City of India' },
+  { name: 'Dwarka', coordinates: [68.9685, 22.2394], description: 'Ancient City of Lord Krishna' },
+  { name: 'Bet Dwarka', coordinates: [69.0889, 22.4278], description: 'Island of Lord Krishna' },
+  { name: 'Nageshwar', coordinates: [68.9758, 22.3297], description: 'Jyotirlinga Temple' },
+  { name: 'Somnath', coordinates: [70.4013, 20.8880], description: 'First Jyotirlinga Temple' },
+  { name: 'Bhavnagar', coordinates: [72.1519, 21.7645], description: 'Cultural City of Gujarat' },
+  { name: 'Nashik', coordinates: [73.7898, 19.9975], description: 'Wine Capital of India' },
 ];
 
 const Travel = () => {
@@ -166,26 +169,6 @@ const Travel = () => {
         Places I've Been
       </Heading>
 
-      {/* World Map */}
-      <ComposableMap
-        projectionConfig={{ scale: 140 }}
-        width={800}
-        height={400}
-      >
-        <Geographies geography={worldTopoJson}>
-          {({ geographies }) =>
-            geographies.map((geo) => (
-              <Geography
-                key={geo.rsmKey}
-                geography={geo}
-                fill={["IND", "VNM"].includes(geo.properties.ISO_A3) ? '#66BB6A' : '#E0E0E0'}
-                stroke="#607D8B"
-              />
-            ))
-          }
-        </Geographies>
-      </ComposableMap>
-
       {/* India Map */}
       <ComposableMap
         projection="geoMercator"
@@ -196,17 +179,33 @@ const Travel = () => {
         height={350}
       >
         <Geographies geography={indiaTopoJson}>
-          {({ geographies }) =>
-            geographies.map((geo) => (
-              <Geography
-                key={geo.rsmKey}
-                geography={geo}
-                fill="#DEF4FC"
-                stroke="#000000"
-              />
-            ))
-          }
-        </Geographies>
+    {({ geographies }) =>
+      geographies.map((geo) => {
+        const stateName = geo.properties.ST_NM; // Get state name from the GeoJSON
+        
+        // List of states you've visited (based on your places)
+        const visitedStates = [
+          'West Bengal', 'Sikkim', 'Chhattisgarh', 'Odisha',
+          'Tamil Nadu', 'Delhi', 'Maharashtra', 'Goa', 'Uttar Pradesh', 'Uttarakhand', 'Rajasthan',
+          'Madhya Pradesh', 'Karnataka', 'Andhra Pradesh', 'Kerala',
+          'Assam', 'Arunachal Pradesh', 'Meghalaya', 'Himachal Pradesh',
+          'Gujarat', 'Telangana'
+        ];
+        
+        const isVisited = visitedStates.includes(stateName);
+        
+        return (
+          <Geography
+            key={geo.rsmKey}
+            geography={geo}
+            fill={isVisited ? "#138808" : "#FF9933"}  // Saffron for visited, light saffron for not visited
+            stroke="#000000"
+            strokeWidth={1}
+          />
+        );
+      })
+    }
+  </Geographies>
         {places.map((place, index) => (
           <Marker
             key={index}
@@ -218,37 +217,15 @@ const Travel = () => {
               cx={0}
               cy={0}
               r={2.7}
-              fill="#FF5722"
-              stroke="#FFF"
+              fill="#FFFFFF"
+              stroke="#000080"
               strokeWidth={0.5}
               style={{ cursor: 'pointer' }}
             />
           </Marker>
         ))}
       </ComposableMap>
-
-       {/* Vietnam Map */}
-      <Heading as="h4" size="md" color="gray.800" textAlign="center" mt={6}>
-        Vietnam
-      </Heading>
-      <ComposableMap
-        projection="geoMercator"
-        projectionConfig={{ scale: 1100, center: [108.2772, 14.0583] }}
-        height={300}
-      >
-        <Geographies geography={vietnamTopoJson}>
-          {({ geographies }) =>
-            geographies.map((geo) => (
-              <Geography
-                key={geo.rsmKey}
-                geography={geo}
-                fill="#C5E1A5"
-                stroke="#37474F"
-              />
-            ))
-          }
-        </Geographies>
-      </ComposableMap>
+      
       <CustomTooltip {...tooltip} />
     </Box>
   );
