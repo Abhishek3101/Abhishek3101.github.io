@@ -131,7 +131,7 @@ export default function Sports() {
 
   return (
     <PageWrapper title="Athletics" fullScreen={true}>
-      <div className="h-screen bg-[#f8f9fa] pt-16 pb-8 px-4 sm:px-8 lg:px-12 flex flex-col overflow-hidden">
+      <div className="flex-1 h-full md:min-h-0 bg-[#f8f9fa] pt-16 pb-8 px-4 sm:px-8 lg:px-12 flex flex-col md:overflow-hidden overflow-y-auto">
         <div className="w-full max-w-[1600px] mx-auto flex flex-col h-full">
           
           {/* Header */}
@@ -147,7 +147,7 @@ export default function Sports() {
           </div>
 
           {/* Strict 6x3 Bento Grid for Single Screen */}
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-6 grid-rows-3 gap-4 min-h-0 pb-4">
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-6 md:grid-rows-3 gap-4 min-h-0 pb-4">
             
             {/* ROW 1 */}
             
@@ -162,7 +162,7 @@ export default function Sports() {
                   <h2 className="text-xl font-semibold text-zinc-900">{data.runningTotal.toLocaleString()} <span className="text-sm font-normal text-zinc-500">km/yr</span></h2>
                 </div>
               </div>
-              <div className="flex-1 min-h-0 mt-2">
+              <div className="flex-1 min-h-0 mt-2 min-h-[120px]">
                 <BarChart data={data.monthlyRunning} color="#3b82f6" unit="km" />
               </div>
             </BentoCard>
@@ -178,7 +178,7 @@ export default function Sports() {
                   <h2 className="text-xl font-semibold text-zinc-900">{data.cyclingTotal.toLocaleString()} <span className="text-sm font-normal text-zinc-500">km/yr</span></h2>
                 </div>
               </div>
-              <div className="flex-1 min-h-0 mt-2">
+              <div className="flex-1 min-h-0 mt-2 min-h-[120px]">
                 <BarChart data={data.monthlyCycling} color="#10b981" unit="km" />
               </div>
             </BentoCard>
@@ -194,7 +194,7 @@ export default function Sports() {
                   <h2 className="text-xl font-semibold text-zinc-900">{data.swimmingTotal.toLocaleString()} <span className="text-sm font-normal text-zinc-500">m/yr</span></h2>
                 </div>
               </div>
-              <div className="flex-1 min-h-0 mt-2">
+              <div className="flex-1 min-h-0 mt-2 min-h-[120px]">
                 <BarChart data={data.monthlySwimming} color="#06b6d4" unit="m" />
               </div>
             </BentoCard>
@@ -249,7 +249,7 @@ export default function Sports() {
                   <h2 className="text-2xl font-semibold text-zinc-900">{data.avgSleep} <span className="text-sm font-normal text-zinc-500">hrs/night</span></h2>
                 </div>
               </div>
-              <div className="flex-1 min-h-0 mt-2 relative">
+              <div className="flex-1 min-h-0 mt-2 relative min-h-[120px]">
                 <LineChart data={data.sleepHistory} color="#6366f1" />
               </div>
             </BentoCard>
@@ -257,7 +257,7 @@ export default function Sports() {
             {/* ROW 3 */}
 
             {/* Activity Heatmap (col-span-6) */}
-            <BentoCard className="col-span-1 md:col-span-6 flex flex-col">
+            <BentoCard className="col-span-1 md:col-span-6 flex flex-col min-h-[150px]">
                <div className="flex justify-between items-end mb-4 flex-shrink-0">
                  <div>
                    <h3 className="text-sm font-semibold text-zinc-900 uppercase tracking-widest">Activity Heatmap</h3>

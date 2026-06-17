@@ -42,11 +42,13 @@ export default function Home() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.6 }}
-      className="w-full h-full relative"
+      className="w-full h-full relative bg-[#f0eadd] overflow-y-auto"
     >
-      {/* Background Image Container */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+      {/* Desktop View */}
+      <div className="hidden lg:block absolute inset-0">
+        {/* Background Image Container */}
+        <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat w-full h-full"
         style={{ backgroundImage: "url('/room-bg.jpg')", backgroundColor: '#f0eadd' }}
       ></div>
 
@@ -101,6 +103,47 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
+
+      {/* Mobile View */}
+      <div className="block lg:hidden w-full min-h-[100vh] flex flex-col pb-16">
+         {/* Top Image */}
+         <div className="w-full aspect-[4/5] relative flex-shrink-0">
+            <img src="/mobile-room-bg.png" className="w-full h-full object-cover" alt="My Digital Room" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#f0eadd] via-[#f0eadd]/50 to-transparent"></div>
+         </div>
+         
+         <div className="px-6 -mt-20 relative z-10 flex-1">
+            <h1 className="font-serif text-4xl font-bold text-zinc-900 mb-2">Welcome.</h1>
+            <p className="font-sans text-sm text-zinc-700 mb-8 leading-relaxed">
+              This Digital Room is best viewed on a laptop. However, you can explore the different parts of my living room below.
+            </p>
+
+            <div className="flex flex-col gap-2">
+               {touchpoints.filter(p => !p.hidden && p.id !== 'intro').map((point, idx) => (
+                 <button
+                   key={point.id}
+                   onClick={() => navigate(point.path)}
+                   className="w-full text-left py-3 border-b border-zinc-300/50 flex items-center justify-between group active:opacity-60 transition-opacity"
+                 >
+                   <div className="flex items-center gap-4">
+                     <span className="font-mono text-xs text-zinc-400">0{idx + 1}</span>
+                     <span className="font-serif text-xl text-zinc-800">{point.label}</span>
+                   </div>
+                   <span className="text-zinc-300 group-hover:text-zinc-800 transition-colors">→</span>
+                 </button>
+               ))}
+               
+               <button
+                 onClick={() => navigate('/dashboard')}
+                 className="w-full text-left py-4 mt-4 flex items-center justify-between group active:opacity-60 transition-opacity"
+               >
+                 <span className="font-sans text-sm font-semibold tracking-widest uppercase text-zinc-500">Dashboard Login</span>
+                 <span className="text-zinc-300">→</span>
+               </button>
+            </div>
+         </div>
+      </div>
     </motion.div>
   )
 }

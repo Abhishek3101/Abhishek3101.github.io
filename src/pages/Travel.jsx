@@ -129,70 +129,77 @@ export default function Travel({ isPreview = false }) {
 
   const MapContent = (
     <>
-    <div className={`relative w-full ${isPreview ? 'h-full rounded-xl' : 'h-screen'} bg-[#fdfaf6] flex flex-col overflow-hidden`}>
+    <div className={`relative w-full ${isPreview ? 'h-full rounded-xl' : 'h-full md:min-h-0'} bg-[#fdfaf6] flex flex-col md:overflow-hidden overflow-y-auto`}>
       
       {/* Main Map Area */}
-        <div className="relative flex-grow overflow-hidden" onClick={handleMapClick}>
+        <div className="relative flex-grow md:flex-grow-0 md:h-full min-h-[60vh] overflow-hidden" onClick={handleMapClick}>
 
           {/* Consolidated Map Controls */}
-          <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-6 bg-white/80 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border border-[#e5dfd3]" onClick={e => e.stopPropagation()}>
+          <div className="absolute top-3 md:top-6 left-1/2 -translate-x-1/2 z-50 flex flex-col md:flex-row items-center gap-2 md:gap-6 bg-white/80 backdrop-blur-md px-3 md:px-6 py-2 md:py-3 rounded-xl md:rounded-full shadow-lg border border-[#e5dfd3] max-w-[92vw]" onClick={e => e.stopPropagation()}>
             
-            <div className="flex bg-gray-100 rounded-full p-1 border border-gray-200">
-              <button 
-                className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors ${mapView === 'world' ? 'bg-[#475569] text-white shadow' : 'text-gray-500 hover:text-gray-900'}`}
-                onClick={() => { setMapView('world'); setPosition({ coordinates: [0,0], zoom: 1 }); setScatteredPhotos([]); setActiveFilter(null); }}
-              >
-                World
-              </button>
-              <button 
-                className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors ${mapView === 'india' ? 'bg-[#475569] text-white shadow' : 'text-gray-500 hover:text-gray-900'}`}
-                onClick={() => { setMapView('india'); setPosition({ coordinates: [0,0], zoom: 1 }); setScatteredPhotos([]); setActiveFilter(null); }}
-              >
-                India
-              </button>
-            </div>
-
-            <div className="w-px h-6 bg-gray-300"></div>
-
-            <button
-              onClick={() => setShowPhotosOnMap(!showPhotosOnMap)}
-              className={`p-1.5 rounded-full transition-colors flex items-center justify-center ${showPhotosOnMap ? 'bg-indigo-100 text-indigo-700 border border-indigo-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200 border border-transparent hover:border-gray-300'}`}
-              title={showPhotosOnMap ? "Hide photos on map" : "Show photos on map"}
-            >
-              <ImageIcon size={18} strokeWidth={2.5} />
-            </button>
-
-            <div className="w-px h-6 bg-gray-300"></div>
-
-            <div className="flex items-center gap-4">
-              {activeFlags.map(flag => (
-                <button
-                  key={flag.code}
-                  onClick={() => handleFilter(flag.code)}
-                  className={`text-2xl transition-transform duration-300 hover:scale-125 ${activeFilter && activeFilter !== flag.code ? 'opacity-30 grayscale' : 'opacity-100 drop-shadow'}`}
-                  title={`Filter by ${flag.label}`}
-                >
-                  {flag.emoji}
-                </button>
-              ))}
-              {activeFilter && (
+            {/* Top row: map toggle + photo toggle */}
+            <div className="flex items-center gap-2 md:gap-6">
+              <div className="flex bg-gray-100 rounded-full p-0.5 md:p-1 border border-gray-200">
                 <button 
-                  onClick={() => { setActiveFilter(null); setScatteredPhotos([]); }}
-                  className="text-[10px] font-bold text-gray-400 hover:text-gray-800 uppercase tracking-wider transition-colors ml-2"
+                  className={`px-3 md:px-4 py-1 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider transition-colors ${mapView === 'world' ? 'bg-[#475569] text-white shadow' : 'text-gray-500 hover:text-gray-900'}`}
+                  onClick={() => { setMapView('world'); setPosition({ coordinates: [0,0], zoom: 1 }); setScatteredPhotos([]); setActiveFilter(null); }}
                 >
-                  Clear
+                  World
                 </button>
-              )}
+                <button 
+                  className={`px-3 md:px-4 py-1 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider transition-colors ${mapView === 'india' ? 'bg-[#475569] text-white shadow' : 'text-gray-500 hover:text-gray-900'}`}
+                  onClick={() => { setMapView('india'); setPosition({ coordinates: [0,0], zoom: 1 }); setScatteredPhotos([]); setActiveFilter(null); }}
+                >
+                  India
+                </button>
+              </div>
+
+              <div className="w-px h-5 bg-gray-300"></div>
+
+              <button
+                onClick={() => setShowPhotosOnMap(!showPhotosOnMap)}
+                className={`p-1.5 rounded-full transition-colors flex items-center justify-center ${showPhotosOnMap ? 'bg-indigo-100 text-indigo-700 border border-indigo-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200 border border-transparent hover:border-gray-300'}`}
+                title={showPhotosOnMap ? "Hide photos on map" : "Show photos on map"}
+              >
+                <ImageIcon size={16} strokeWidth={2.5} />
+              </button>
             </div>
+
+            {/* Flags row — wraps on mobile */}
+            {activeFlags.length > 0 && (
+              <>
+                <div className="hidden md:block w-px h-6 bg-gray-300"></div>
+                <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4">
+                  {activeFlags.map(flag => (
+                    <button
+                      key={flag.code}
+                      onClick={() => handleFilter(flag.code)}
+                      className={`text-lg md:text-2xl transition-transform duration-300 hover:scale-125 ${activeFilter && activeFilter !== flag.code ? 'opacity-30 grayscale' : 'opacity-100 drop-shadow'}`}
+                      title={`Filter by ${flag.label}`}
+                    >
+                      {flag.emoji}
+                    </button>
+                  ))}
+                  {activeFilter && (
+                    <button 
+                      onClick={() => { setActiveFilter(null); setScatteredPhotos([]); }}
+                      className="text-[10px] font-bold text-gray-400 hover:text-gray-800 uppercase tracking-wider transition-colors ml-1"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Left Panel: Ticket Roll */}
-          <div className="absolute top-24 left-8 z-40 w-64" onClick={e => e.stopPropagation()}>
+          <div className="hidden md:block absolute top-24 left-8 z-40 w-64" onClick={e => e.stopPropagation()}>
             <BoardingPassRoll flights={flights} airlines={airlines} />
           </div>
 
           {/* Right Panel: Learnings & Wishes */}
-          <div className="absolute top-24 right-8 z-30 flex flex-col gap-8 w-64 items-end pointer-events-none">
+          <div className="hidden md:flex absolute top-24 right-8 z-30 flex-col gap-8 w-64 items-end pointer-events-none">
             {learnings.length > 0 && (
               <div className="bg-yellow-100 p-5 shadow-md w-full pointer-events-auto transform rotate-2 relative rounded-sm">
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-white/60 transform -rotate-3 backdrop-blur-sm shadow-sm"></div>
@@ -399,21 +406,58 @@ export default function Travel({ isPreview = false }) {
           <ScatterLayer photos={scatteredPhotos} onPhotoClick={setSelectedPolaroid} />
 
         </div>
+
+        {/* Mobile Panels — shown below map on small screens */}
+        <div className="md:hidden flex flex-col gap-8 p-4 pt-10 flex-shrink-0 bg-[#fdfaf6] relative z-20">
+          {flights.length > 0 && (
+            <div className="flex justify-center w-full min-h-[350px]">
+              <div className="w-[85%] max-w-[320px] relative">
+                <BoardingPassRoll flights={flights} airlines={airlines} isMobileLayout={true} />
+              </div>
+            </div>
+          )}
+
+          {learnings.length > 0 && (
+            <div className="bg-yellow-100 p-6 shadow-lg w-full relative rounded-sm transform rotate-1">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-5 bg-white/60 transform -rotate-2 backdrop-blur-sm shadow-sm"></div>
+              <h4 className="font-handwriting text-2xl mb-4 flex items-center gap-2 text-yellow-800"><Bookmark size={20}/> Learnings</h4>
+              <div className="space-y-4">
+                {learnings.slice(0, 3).map((item, i) => (
+                  <p key={item.id || i} className="text-lg font-handwriting leading-relaxed text-yellow-900 border-b border-yellow-200/50 pb-2">{item.text}</p>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {wishlist.length > 0 && (
+            <div className="bg-blue-50 p-6 shadow-lg w-full relative border border-blue-100 rounded-xl mb-12">
+              <h4 className="font-handwriting text-2xl mb-4 flex items-center gap-2 text-blue-800"><Award size={20}/> Wishlist</h4>
+              <ul className="text-lg font-handwriting space-y-3">
+                {wishlist.slice(0, 5).map((item, i) => (
+                  <li key={item.id || i} className="flex gap-2 items-start text-blue-900">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span className="leading-tight">{item.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Travelogue Book Modal */}
       <Dialog open={!!selectedPolaroid} onOpenChange={(open) => !open && setSelectedPolaroid(null)}>
-        <DialogContent className="max-w-5xl w-full h-[75vh] bg-transparent border-none shadow-none p-0 z-[100] flex items-center justify-center">
+        <DialogContent className="max-w-5xl w-full h-auto md:h-[75vh] bg-transparent border-none shadow-none p-0 z-[100] flex items-center justify-center">
           {selectedPolaroid && (
             <div 
-              className="flex w-full h-full relative rounded-sm overflow-hidden bg-[#f4ead5] shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-[8px] border-[#e2cca4]" 
+              className="flex flex-col md:flex-row w-full h-full relative rounded-sm overflow-hidden bg-[#f4ead5] shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-[8px] border-[#e2cca4]" 
               style={{ backgroundImage: "radial-gradient(circle at center, #fdfbf7 0%, #ecdcb9 100%)" }}
             >
               {/* Spine shadow */}
               <div className="absolute left-1/2 top-0 bottom-0 w-12 -translate-x-1/2 bg-gradient-to-r from-transparent via-[rgba(0,0,0,0.15)] to-transparent z-20 pointer-events-none"></div>
               
               {/* Left Page (Photo) */}
-              <div className="w-1/2 h-full flex flex-col items-center justify-center p-12 relative border-r border-[#d4c19a]">
+              <div className="w-full md:w-1/2 h-64 md:h-full flex flex-col items-center justify-center p-6 md:p-12 relative border-b md:border-b-0 md:border-r border-[#d4c19a]">
                 <div className="absolute inset-0 pointer-events-none opacity-5" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/old-wall.png')" }}></div>
                 
                 {/* Taped Photo */}
@@ -429,7 +473,7 @@ export default function Travel({ isPreview = false }) {
               </div>
 
               {/* Right Page (Journal) */}
-              <div className="w-1/2 h-full p-12 pt-16 flex flex-col relative overflow-y-auto custom-scrollbar">
+              <div className="w-full md:w-1/2 h-auto md:h-full p-6 md:p-12 pt-8 md:pt-16 flex flex-col relative overflow-y-auto custom-scrollbar">
                  <div className="absolute inset-0 pointer-events-none opacity-5" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/old-wall.png')" }}></div>
                  {/* Paper lines */}
                  <div className="absolute inset-0 pointer-events-none opacity-10" style={{ backgroundImage: "repeating-linear-gradient(transparent, transparent 39px, #7092be 39px, #7092be 40px)", backgroundPositionY: "38px" }}></div>
@@ -457,7 +501,7 @@ export default function Travel({ isPreview = false }) {
   )
 }
 
-function BoardingPassRoll({ flights = [], airlines = {} }) {
+function BoardingPassRoll({ flights = [], airlines = {}, isMobileLayout = false }) {
   const [isRolledOut, setIsRolledOut] = useState(false)
 
   const airlineCounts = flights.reduce((acc, pass) => {
@@ -466,7 +510,7 @@ function BoardingPassRoll({ flights = [], airlines = {} }) {
   }, {})
 
   return (
-    <div className="relative pointer-events-auto">
+    <div className={`relative pointer-events-auto ${isMobileLayout ? 'w-full' : ''}`}>
       {/* Dispenser Header / Stats Box */}
       <div 
         className="bg-white p-4 rounded shadow-lg border border-[#e5dfd3] cursor-pointer hover:bg-gray-50 transition-colors z-30 relative flex flex-col items-center"
@@ -493,7 +537,7 @@ function BoardingPassRoll({ flights = [], airlines = {} }) {
       </div>
 
       {/* The Roll Container */}
-      <div className="absolute top-[100%] left-0 w-full z-10 flex flex-col items-center">
+      <div className={`${isMobileLayout ? 'relative' : 'absolute'} top-[100%] left-0 w-full z-10 flex flex-col items-center pb-8`}>
         <AnimatePresence initial={false}>
           {flights.map((pass, index) => {
             const isFirst = index === 0;
@@ -503,6 +547,7 @@ function BoardingPassRoll({ flights = [], airlines = {} }) {
             return (
               <motion.div
                 key={pass.id}
+                layout={isMobileLayout}
                 initial={{ opacity: 0, y: -50, rotateX: 90 }}
                 animate={{ 
                   opacity: 1, 

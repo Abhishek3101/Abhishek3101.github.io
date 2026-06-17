@@ -42,7 +42,7 @@ export default function Curations() {
     <PageWrapper title="Curations" fullScreen={true}>
       
       {/* The Room Background */}
-      <div className="h-screen bg-[#14100e] pt-16 pb-8 px-4 sm:px-12 relative overflow-hidden flex flex-col">
+      <div className="flex-1 h-full md:min-h-0 bg-[#14100e] pt-16 pb-8 px-4 sm:px-12 relative md:overflow-hidden overflow-y-auto flex flex-col">
         
         {/* Dynamic Spotlights illuminating the shelves */}
         <div className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(255,220,150,0.1)_0%,transparent_70%)] pointer-events-none z-0" />
@@ -103,7 +103,7 @@ function MuseumShelf({ title, children }) {
       </div>
 
       {/* The Physical Objects */}
-      <div className="relative z-10 flex items-end justify-center gap-6 md:gap-12 px-4 pb-2 h-40 sm:h-56">
+      <div className="relative z-10 flex items-end justify-start md:justify-center gap-4 md:gap-12 px-4 pb-2 h-40 sm:h-56 overflow-x-auto md:overflow-x-visible hide-scrollbar">
         {children}
       </div>
 

@@ -12,9 +12,9 @@ export default function PageWrapper({ children, title, fullScreen = false, hideB
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
       transition={{ duration: 0.5 }}
-      className="absolute inset-0 bg-[#faf9f5] overflow-y-auto text-foreground z-20"
+      className="md:absolute md:inset-0 relative h-[100dvh] md:h-full bg-[#faf9f5] md:overflow-y-auto overflow-x-hidden text-foreground z-20 flex flex-col"
     >
-      <div className={`relative ${fullScreen ? 'w-full h-full min-h-screen' : 'max-w-6xl mx-auto p-8'}`}>
+      <div className={`relative flex-1 ${fullScreen ? 'w-full flex flex-col' : 'max-w-6xl mx-auto p-8'}`}>
         {!hideBackButton && (
           <button 
             onClick={() => navigate('/')}
@@ -25,7 +25,7 @@ export default function PageWrapper({ children, title, fullScreen = false, hideB
           </button>
         )}
 
-        <div className={fullScreen ? 'w-full h-full' : 'pt-16'}>
+        <div className={fullScreen ? 'w-full flex-1 flex flex-col relative' : 'pt-16'}>
           {title && !fullScreen && <h1 className="text-4xl font-light mb-8">{title}</h1>}
           {children}
         </div>

@@ -55,7 +55,7 @@ export default function Future() {
     <PageWrapper title="Vision Board" fullScreen={true}>
       
       {/* Architectural Grid Background */}
-      <div className="min-h-screen bg-[#faf9f6] pt-32 pb-24 px-4 sm:px-12 relative"
+      <div className="flex-1 h-full bg-[#faf9f6] pt-32 pb-24 px-4 sm:px-12 relative"
            style={{
              backgroundImage: `
                linear-gradient(#e5e7eb 1px, transparent 1px),

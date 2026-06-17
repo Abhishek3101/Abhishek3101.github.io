@@ -157,7 +157,7 @@ export default function Journal() {
   if (!activeEntry) {
     return (
       <PageWrapper title="Journal" fullScreen={true}>
-        <div className="h-screen pt-20 flex items-center justify-center text-zinc-500">Loading Journal...</div>
+        <div className="flex-1 h-full md:min-h-0 pt-20 flex items-center justify-center text-zinc-500">Loading Journal...</div>
       </PageWrapper>
     )
   }
@@ -165,7 +165,7 @@ export default function Journal() {
   return (
     <PageWrapper title="Journal" fullScreen={true}>
       <motion.div 
-        className="h-screen pt-20 pb-0 px-4 sm:px-8 lg:px-12 flex flex-col overflow-hidden transition-colors duration-1000 ease-in-out"
+        className="flex-1 h-full md:min-h-0 pt-20 pb-0 px-4 sm:px-8 lg:px-12 flex flex-col md:overflow-hidden overflow-y-auto transition-colors duration-1000 ease-in-out"
         animate={{ backgroundColor: activeEntry.moodColor }}
       >
         <div className="w-full max-w-[1400px] mx-auto flex flex-col h-full relative">
@@ -242,7 +242,7 @@ export default function Journal() {
             </div>
 
             {/* Right Page: The Entry Reader */}
-            <div className="w-full md:w-2/3 h-full relative perspective-1000">
+            <div className="w-full md:w-2/3 h-auto md:h-full relative perspective-1000">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeEntry.id}
@@ -250,7 +250,7 @@ export default function Journal() {
                   animate={{ opacity: 1, rotateY: 0, x: 0 }}
                   exit={{ opacity: 0, rotateY: 15, x: -20 }}
                   transition={{ duration: 0.6, ease: "easeOut" }}
-                  className="absolute inset-0 rounded-l-3xl shadow-[0_0_40px_rgba(0,0,0,0.05)] border-l border-white/50 overflow-hidden"
+                  className="md:absolute md:inset-0 relative min-h-[50vh] rounded-l-3xl shadow-[0_0_40px_rgba(0,0,0,0.05)] border-l border-white/50 overflow-hidden"
                   style={{ backgroundColor: activeEntry.paperColor, color: activeEntry.textColor }}
                 >
                   <div className="w-full h-full overflow-y-auto hide-scrollbar p-8 md:p-16 lg:p-24 pb-32">

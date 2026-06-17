@@ -23,7 +23,7 @@
     "mapshaper": "^0.7.25",
     "prop-types": "^15.8.1",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6",
+    "react-dom": "^19.2.7",
     "react-is": "^19.2.7",
     "react-router-dom": "^7.17.0",
     "react-simple-maps": "^3.0.0",

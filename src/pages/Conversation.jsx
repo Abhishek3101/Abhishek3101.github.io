@@ -63,7 +63,7 @@ export default function Conversation() {
 
   return (
     <PageWrapper title="Conversation" fullScreen={true}>
-      <div className="h-screen bg-[#faf9f6] flex flex-col justify-center items-center px-4 overflow-hidden relative">
+      <div className="flex-1 h-full md:min-h-0 bg-[#faf9f6] flex flex-col justify-center items-center px-4 overflow-hidden relative">
         
         {/* Subtle Background Elements */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">

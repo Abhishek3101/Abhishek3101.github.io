@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import PageWrapper from '@/components/PageWrapper'
 import { motion, AnimatePresence, useAnimation } from 'framer-motion'
 import { Terminal, GraduationCap, Rocket, Users, Briefcase, Building, Mountain, Anchor, Code, Layout, Heart, Home, X, ChevronRight } from 'lucide-react'
@@ -102,133 +103,164 @@ export default function Achievements() {
   return (
     <PageWrapper title="The Desk" fullScreen={true}>
       
-      {/* Viewport for dragging */}
+      {/* Viewport for dragging and mobile view */}
       <div 
         ref={(el) => {
           constraintsRef.current = el;
           containerRef.current = el;
         }} 
-        className="w-full h-screen overflow-hidden bg-[#0a0705] relative select-none cursor-grab active:cursor-grabbing"
+        className="w-full flex-1 flex flex-col relative"
       >
-        {/* Dynamic Flashlight Overlay */}
-        <div 
-          className="absolute inset-0 z-30 pointer-events-none transition-opacity duration-500"
-          style={{ 
-            opacity: selectedItem ? 0 : 1,
-            background: 'radial-gradient(circle 400px at var(--mouse-x, 50vw) var(--mouse-y, 50vh), transparent 0%, rgba(5,3,2,0.85) 100%)' 
-          }} 
-        />
-
-        {/* Instructions overlay */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none opacity-50 bg-black/50 text-white px-6 py-2 rounded-full font-handwriting text-xl backdrop-blur-sm border border-white/10">
-          Click and drag to explore the desk
+        {/* Mobile/Tablet List View (Grid) */}
+        <div className="md:hidden w-full h-full p-4 overflow-y-auto bg-[#faf9f5]">
+          <h2 className="font-serif text-3xl mb-8 mt-4 text-center text-gray-800">Timeline</h2>
+          <div className="flex flex-col gap-6 max-w-md mx-auto pb-12">
+            {items.map((item) => (
+              <div 
+                key={item.id} 
+                className="bg-white p-5 rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-100 flex gap-4 items-start cursor-pointer transition-transform hover:scale-[1.02]"
+                onClick={() => setSelectedItem(item)}
+              >
+                <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0 border border-orange-100">
+                  <item.icon size={20} className="text-orange-800/70" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-lg font-bold text-gray-900 leading-tight mb-1">{item.title}</h3>
+                  <p className="font-mono text-xs text-gray-500 mb-2">{item.date} • {item.category}</p>
+                  <p className="text-sm text-gray-600 line-clamp-2">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* The massive desk surface */}
-        <motion.div 
-          drag 
-          dragConstraints={constraintsRef}
-          dragElastic={0.2}
-          dragMomentum={true}
-          animate={controls}
-          initial={{ x: -1000, y: -1000 }}
-          className="relative w-[3000px] h-[3000px] bg-[#2c1e16]"
-          style={{
-            // Wood grain texture
-            backgroundImage: `
-              linear-gradient(rgba(0,0,0,0.1) 2px, transparent 2px),
-              linear-gradient(90deg, rgba(0,0,0,0.1) 2px, transparent 2px),
-              linear-gradient(rgba(20, 10, 5, 0.4) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(20, 10, 5, 0.4) 1px, transparent 1px)
-            `,
-            backgroundSize: '100px 100px, 100px 100px, 20px 20px, 20px 20px',
-            boxShadow: 'inset 0 0 400px rgba(0,0,0,0.9)'
-          }}
-        >
-          {/* Red String Timeline SVG Layer */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
-            <defs>
-              <filter id="string-shadow" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow dx="2" dy="5" stdDeviation="3" floodColor="#000" floodOpacity="0.6"/>
-              </filter>
-            </defs>
-            {connections.map(([idA, idB], idx) => {
-              const itemA = items.find(i => i.id === idA)
-              const itemB = items.find(i => i.id === idB)
-              if (!itemA || !itemB) return null;
-              
-              // Add offset so the string originates roughly from the center of the objects
-              const x1 = itemA.x + 80;
-              const y1 = itemA.y + 80;
-              const x2 = itemB.x + 80;
-              const y2 = itemB.y + 80;
+        {/* The massive desk surface (Desktop Only) */}
+        <div className="hidden md:block w-full h-full overflow-hidden bg-[#0a0705] relative select-none cursor-grab active:cursor-grabbing">
+          {/* Dynamic Flashlight Overlay */}
+          <div 
+            className="absolute inset-0 z-30 pointer-events-none transition-opacity duration-500"
+            style={{ 
+              opacity: selectedItem ? 0 : 1,
+              background: 'radial-gradient(circle 400px at var(--mouse-x, 50vw) var(--mouse-y, 50vh), transparent 0%, rgba(5,3,2,0.85) 100%)' 
+            }} 
+          />
 
-              return (
-                <g key={idx}>
-                  {/* The red yarn */}
-                  <line 
-                    x1={x1} y1={y1} x2={x2} y2={y2} 
-                    stroke="#991b1b" 
-                    strokeWidth="4"
-                    filter="url(#string-shadow)"
-                    strokeLinecap="round"
-                    className="opacity-80"
-                  />
-                  {/* Yarn threads texture */}
-                  <line 
-                    x1={x1} y1={y1} x2={x2} y2={y2} 
-                    stroke="#ef4444" 
-                    strokeWidth="1.5"
-                    strokeDasharray="4 2"
-                    className="opacity-60"
-                  />
-                  {/* The Push Pins */}
-                  <circle cx={x1} cy={y1} r="6" fill="#dc2626" stroke="#450a0a" strokeWidth="2" filter="url(#string-shadow)" />
-                  <circle cx={x1-2} cy={y1-2} r="2" fill="#fca5a5" /> {/* Pin highlight */}
-                  
-                  <circle cx={x2} cy={y2} r="6" fill="#dc2626" stroke="#450a0a" strokeWidth="2" filter="url(#string-shadow)" />
-                </g>
-              )
-            })}
-          </svg>
+          {/* Instructions overlay */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none opacity-50 bg-black/50 text-white px-6 py-2 rounded-full font-handwriting text-xl backdrop-blur-sm border border-white/10">
+            Click and drag to explore the desk
+          </div>
 
-          {/* Desk Items */}
-          {items.map((item) => (
-            <DeskItem 
-              key={item.id} 
-              item={item} 
-              onClick={() => setSelectedItem(item)} 
-              isDimmed={selectedItem && selectedItem.id !== item.id}
-            />
-          ))}
+          <motion.div 
+            drag 
+            dragConstraints={constraintsRef}
+            dragElastic={0.2}
+            dragMomentum={true}
+            animate={controls}
+            initial={{ x: -1000, y: -1000 }}
+            className="relative w-[3000px] h-[3000px] bg-[#2c1e16]"
+            style={{
+              // Wood grain texture
+              backgroundImage: `
+                linear-gradient(rgba(0,0,0,0.1) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(0,0,0,0.1) 2px, transparent 2px),
+                linear-gradient(rgba(20, 10, 5, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(20, 10, 5, 0.4) 1px, transparent 1px)
+              `,
+              backgroundSize: '100px 100px, 100px 100px, 20px 20px, 20px 20px',
+              boxShadow: 'inset 0 0 400px rgba(0,0,0,0.9)'
+            }}
+          >
+            {/* Red String Timeline SVG Layer */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
+              <defs>
+                <filter id="string-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="2" dy="5" stdDeviation="3" floodColor="#000" floodOpacity="0.6"/>
+                </filter>
+              </defs>
+              {connections.map(([idA, idB], idx) => {
+                const itemA = items.find(i => i.id === idA)
+                const itemB = items.find(i => i.id === idB)
+                if (!itemA || !itemB) return null;
+                
+                // Add offset so the string originates roughly from the center of the objects
+                const x1 = itemA.x + 80;
+                const y1 = itemA.y + 80;
+                const x2 = itemB.x + 80;
+                const y2 = itemB.y + 80;
 
-          {/* Aesthetic Desk Props (Non-interactive) */}
-          <div className="absolute w-64 h-64 border-4 border-white/5 rounded-full pointer-events-none" style={{ left: 1300, top: 1400 }} /> {/* Coffee ring */}
-          <div className="absolute w-40 h-40 bg-black/20 blur-xl rounded-full pointer-events-none" style={{ left: 1800, top: 1600 }} /> {/* Shadow of a lamp */}
+                return (
+                  <g key={idx}>
+                    {/* The red yarn */}
+                    <line 
+                      x1={x1} y1={y1} x2={x2} y2={y2} 
+                      stroke="#991b1b" 
+                      strokeWidth="4"
+                      filter="url(#string-shadow)"
+                      strokeLinecap="round"
+                      className="opacity-80"
+                    />
+                    {/* Yarn threads texture */}
+                    <line 
+                      x1={x1} y1={y1} x2={x2} y2={y2} 
+                      stroke="#ef4444" 
+                      strokeWidth="1.5"
+                      strokeDasharray="4 2"
+                      className="opacity-60"
+                    />
+                    {/* The Push Pins */}
+                    <circle cx={x1} cy={y1} r="6" fill="#dc2626" stroke="#450a0a" strokeWidth="2" filter="url(#string-shadow)" />
+                    <circle cx={x1-2} cy={y1-2} r="2" fill="#fca5a5" /> {/* Pin highlight */}
+                    
+                    <circle cx={x2} cy={y2} r="6" fill="#dc2626" stroke="#450a0a" strokeWidth="2" filter="url(#string-shadow)" />
+                  </g>
+                )
+              })}
+            </svg>
 
-        </motion.div>
+            {/* Desk Items */}
+            {items.map((item) => (
+              <DeskItem 
+                key={item.id} 
+                item={item} 
+                onClick={() => setSelectedItem(item)} 
+                isDimmed={selectedItem && selectedItem.id !== item.id}
+              />
+            ))}
+
+            {/* Aesthetic Desk Props (Non-interactive) */}
+            <div className="absolute w-64 h-64 border-4 border-white/5 rounded-full pointer-events-none" style={{ left: 1300, top: 1400 }} /> {/* Coffee ring */}
+            <div className="absolute w-40 h-40 bg-black/20 blur-xl rounded-full pointer-events-none" style={{ left: 1800, top: 1600 }} /> {/* Shadow of a lamp */}
+
+          </motion.div>
+        </div>
       </div>
 
       {/* Examine Modal */}
-      <AnimatePresence>
-        {selectedItem && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 bg-black/80 backdrop-blur-md cursor-zoom-out"
-            onClick={() => setSelectedItem(null)}
-          >
+      {createPortal(
+        <AnimatePresence>
+          {selectedItem && (
             <motion.div 
-              layoutId={`item-${selectedItem.id}`}
-              className="relative cursor-default"
-              onClick={e => e.stopPropagation()}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-black/80 backdrop-blur-md cursor-zoom-out"
+              onClick={() => setSelectedItem(null)}
             >
-              <ExpandedItem item={selectedItem} onClose={() => setSelectedItem(null)} />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3 }}
+                className="relative cursor-default max-w-[90vw] max-h-[85vh] overflow-y-auto"
+                onClick={e => e.stopPropagation()}
+              >
+                <ExpandedItem item={selectedItem} onClose={() => setSelectedItem(null)} />
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
     </PageWrapper>
   )
@@ -243,7 +275,6 @@ function DeskItem({ item, onClick, isDimmed }) {
 
   return (
     <motion.div
-      layoutId={`item-${item.id}`}
       className={`absolute cursor-pointer transition-opacity duration-300 ${isDimmed ? 'opacity-40' : 'opacity-100 hover:z-10'}`}
       style={{
         left: item.x,
@@ -329,25 +360,25 @@ function ExpandedItem({ item, onClose }) {
     <div className="relative group perspective-1000">
       
       {isJournal && (
-        <div className="w-[600px] h-[400px] bg-[#f4ebd8] flex shadow-2xl rounded-sm overflow-hidden"
+        <div className="w-full max-w-[600px] h-auto md:h-[400px] bg-[#f4ebd8] flex flex-col md:flex-row shadow-2xl rounded-sm overflow-hidden"
              style={{ backgroundImage: 'linear-gradient(90deg, rgba(0,0,0,0.1) 0%, transparent 2%, transparent 98%, rgba(0,0,0,0.1) 100%), linear-gradient(0deg, #f4ebd8, #fffdf8)' }}>
           {/* Left Page */}
-          <div className="w-1/2 h-full border-r border-black/10 p-10 flex flex-col justify-center relative shadow-[inset_-10px_0_20px_rgba(0,0,0,0.05)]">
+          <div className="w-full md:w-1/2 h-48 md:h-full border-b md:border-b-0 md:border-r border-black/10 p-6 md:p-10 flex flex-col justify-center relative shadow-[inset_-10px_0_20px_rgba(0,0,0,0.05)]">
             <div className="w-16 h-16 rounded-full bg-black/5 flex items-center justify-center mb-6">
               <item.icon size={32} className="text-black/60" />
             </div>
-            <h2 className="font-serif text-3xl text-gray-900 mb-2">{item.title}</h2>
+            <h2 className="font-serif text-2xl md:text-3xl text-gray-900 mb-2">{item.title}</h2>
             <div className="font-mono text-sm text-gray-500 uppercase tracking-widest">{item.date}</div>
           </div>
           {/* Right Page */}
-          <div className="w-1/2 h-full p-10 flex flex-col justify-center relative shadow-[inset_10px_0_20px_rgba(0,0,0,0.05)]">
-             <p className="font-handwriting text-2xl text-gray-800 leading-relaxed">{item.desc}</p>
+          <div className="w-full md:w-1/2 h-auto md:h-full p-6 md:p-10 flex flex-col justify-center relative shadow-[inset_10px_0_20px_rgba(0,0,0,0.05)]">
+             <p className="font-handwriting text-xl md:text-2xl text-gray-800 leading-relaxed">{item.desc}</p>
           </div>
         </div>
       )}
 
       {isBlueprint && (
-        <div className="w-[700px] h-[500px] bg-[#1c3f60] p-8 shadow-2xl border-4 border-blue-400/20 flex flex-col"
+        <div className="w-full max-w-[700px] h-auto md:h-[500px] bg-[#1c3f60] p-4 md:p-8 shadow-2xl border-4 border-blue-400/20 flex flex-col"
              style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 2px, transparent 2px), linear-gradient(90deg, rgba(255,255,255,0.1) 2px, transparent 2px)', backgroundSize: '40px 40px' }}>
           <div className="border-4 border-white/30 p-8 h-full flex flex-col relative">
              <div className="absolute top-0 left-0 w-full flex justify-between p-4 border-b-4 border-white/30">
@@ -367,7 +398,7 @@ function ExpandedItem({ item, onClose }) {
       )}
 
       {isLetter && (
-        <div className="w-[500px] min-h-[600px] bg-[#fdfaf6] shadow-2xl p-12 flex flex-col border border-[#e8e4db]"
+        <div className="w-full max-w-[500px] min-h-[400px] bg-[#fdfaf6] shadow-2xl p-6 md:p-12 flex flex-col border border-[#e8e4db]"
              style={{ backgroundImage: 'linear-gradient(to bottom, #fdfaf6, #f4efe6)' }}>
           <div className="flex justify-between items-start mb-12 border-b border-gray-300 pb-8">
             <div className="w-16 h-16 rounded-full border-2 border-red-800/40 flex items-center justify-center">
@@ -388,7 +419,7 @@ function ExpandedItem({ item, onClose }) {
       )}
 
       {isPolaroid && (
-        <div className="w-[400px] bg-white p-6 pb-20 shadow-2xl rounded-sm">
+        <div className="w-full max-w-[400px] bg-white p-4 md:p-6 pb-12 md:pb-20 shadow-2xl rounded-sm">
           <div className="w-full aspect-square bg-gray-200 mb-6 overflow-hidden shadow-inner border border-black/5">
             <img src={item.image} alt={item.title} className="w-full h-full object-cover filter contrast-125 saturate-50 sepia-[0.2]" />
           </div>
@@ -399,7 +430,7 @@ function ExpandedItem({ item, onClose }) {
       )}
 
       {isSticky && (
-        <div className={`w-[400px] h-[400px] ${item.color} shadow-2xl p-10 flex flex-col justify-center`}
+        <div className={`w-full max-w-[400px] h-auto min-h-[250px] md:h-[400px] ${item.color} shadow-2xl p-6 md:p-10 flex flex-col justify-center`}
              style={{ clipPath: 'polygon(0 0, 100% 0, 100% 90%, 90% 100%, 0 100%)' }}>
           <div className="font-handwriting text-gray-800 text-5xl leading-tight mb-8 text-center">{item.title}</div>
           <div className="font-handwriting text-gray-700 text-2xl leading-relaxed text-center">{item.desc}</div>
@@ -409,11 +440,12 @@ function ExpandedItem({ item, onClose }) {
 
       <button 
         onClick={onClose}
-        className="absolute -top-6 -right-6 w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors z-50"
+        className="absolute top-2 right-2 md:-top-6 md:-right-6 w-10 h-10 md:w-12 md:h-12 bg-black/80 md:bg-black text-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors z-[100]"
       >
-        <X size={24} />
+        <X size={20} className="md:w-6 md:h-6" />
       </button>
 
     </div>
   )
 }
+
