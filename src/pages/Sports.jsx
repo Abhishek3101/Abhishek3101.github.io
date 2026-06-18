@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import PageWrapper from '@/components/PageWrapper'
 import { motion } from 'framer-motion'
-import { Activity, TrendingUp, Trophy, Flame, Zap, Bike, Droplets } from 'lucide-react'
+import { Activity, Flame, Zap, Bike, Droplets } from 'lucide-react'
 import { db } from '@/lib/firebase'
-import { collection, getDocs } from 'firebase/firestore'
+import { collection, getDocs, addDoc } from 'firebase/firestore'
 
 export default function Sports() {
   const [data, setData] = useState({
@@ -11,118 +11,79 @@ export default function Sports() {
     cyclingTotal: 0,
     swimmingTotal: 0,
     racket: { Tennis: 0, Badminton: 0, Squash: 0, Pickleball: 0 },
-    streak: 0,
-    avgWater: 0,
-    avgSleep: 0,
-    monthlyRunning: Array(12).fill(0),
-    monthlyCycling: Array(12).fill(0),
-    monthlySwimming: Array(12).fill(0),
-    sleepHistory: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-    heatmap: Array.from({ length: 364 }, () => 0) // 52 weeks * 7 days
+    runningSessions: [],
+    cyclingSessions: [],
+    swimmingSessions: [],
+    memories: []
   });
 
   useEffect(() => {
     const fetchAthletics = async () => {
-      const snap = await getDocs(collection(db, 'athletics'));
+      let snap = await getDocs(collection(db, 'athletics'));
       
-      let rTotal = 0;
-      let cTotal = 0;
-      let sTotal = 0;
-      let wTotal = 0;
-      let wCount = 0;
-      let slTotal = 0;
-      let slCount = 0;
+      // Seed dummy data if empty to give the user the experience
+      if (snap.empty) {
+        const dummyData = [
+          { date: '2023-10-01', running: 5, journal: 'First crisp autumn morning run. The leaves were incredible.' },
+          { date: '2023-10-05', cycling: 20, gym: 'Yes', journal: 'Tough ride up the hills, but hit a PR. Gym session afterwards was a struggle.' },
+          { date: '2023-10-12', racketSport: 'Tennis', journal: 'Played a 3-set thriller with John. Backhand is finally feeling natural again.' },
+          { date: '2023-10-20', swimming: 1500, journal: 'Felt very calm in the water today. Good pacing.' }
+        ];
+        for (const d of dummyData) {
+          await addDoc(collection(db, 'athletics'), d);
+        }
+        snap = await getDocs(collection(db, 'athletics'));
+      }
+      
+      let rTotal = 0; let cTotal = 0; let sTotal = 0;
       const racket = { Tennis: 0, Badminton: 0, Squash: 0, Pickleball: 0 };
       
-      const mRunning = Array(12).fill(0);
-      const mCycling = Array(12).fill(0);
-      const mSwimming = Array(12).fill(0);
-      
-      const rawSleep = [];
-      
-      // For heatmap & streak
-      const today = new Date();
-      today.setHours(0,0,0,0);
-      const activityMap = {};
+      const rawRunning = [];
+      const rawCycling = [];
+      const rawSwimming = [];
+      const memories = [];
 
       snap.docs.forEach(doc => {
         const d = doc.data();
         if (!d.date) return;
         
         const dateObj = new Date(d.date);
-        const month = dateObj.getMonth(); // 0-11
         
-        const gym = d.gym === 'Yes';
         const run = parseFloat(d.running || '0');
         const cyc = parseFloat(d.cycling || '0');
         const swim = parseFloat(d.swimming || '0');
-        const water = parseFloat(d.water || '0');
-        const sleep = parseFloat(d.sleep || '0');
         const rs = d.racketSport || 'None';
+        const journal = d.journal || '';
+        const image = d.image || null;
 
-        if (!isNaN(run) && run > 0) { rTotal += run; mRunning[month] += run; }
-        if (!isNaN(cyc) && cyc > 0) { cTotal += cyc; mCycling[month] += cyc; }
-        if (!isNaN(swim) && swim > 0) { sTotal += swim; mSwimming[month] += swim; }
+        if (!isNaN(run) && run > 0) { rTotal += run; rawRunning.push({ date: dateObj, value: run }); }
+        if (!isNaN(cyc) && cyc > 0) { cTotal += cyc; rawCycling.push({ date: dateObj, value: cyc }); }
+        if (!isNaN(swim) && swim > 0) { sTotal += swim; rawSwimming.push({ date: dateObj, value: swim }); }
         
         if (rs !== 'None' && racket[rs] !== undefined) racket[rs] += 1;
         
-        if (!isNaN(water) && water > 0) { wTotal += water; wCount++; }
-        if (!isNaN(sleep) && sleep > 0) { 
-          slTotal += sleep; 
-          slCount++; 
-          rawSleep.push({ date: dateObj, sleep });
+        if (journal.trim() || image) {
+          memories.push({ date: dateObj, text: journal, rs, run, cyc, swim, image });
         }
-
-        // Intensity calculation for heatmap
-        let intensity = 0;
-        if (gym) intensity += 2;
-        if (run > 0 || cyc > 0 || swim > 0 || rs !== 'None') intensity += 2;
-        if (intensity > 4) intensity = 4;
-        
-        const dateStr = dateObj.toISOString().split('T')[0];
-        activityMap[dateStr] = Math.max(activityMap[dateStr] || 0, intensity);
       });
 
-      // Calculate streak
-      let streak = 0;
-      for (let i = 0; i < 365; i++) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        const str = d.toISOString().split('T')[0];
-        if (activityMap[str] && activityMap[str] > 0) {
-          streak++;
-        } else if (i > 0) { // allow missing today
-          break;
-        }
-      }
+      memories.sort((a, b) => b.date - a.date);
 
-      // Heatmap array (364 days ending today)
-      const heatmap = [];
-      for (let i = 363; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        const str = d.toISOString().split('T')[0];
-        heatmap.push(activityMap[str] || 0);
-      }
-
-      // Sleep history (last 12 logs)
-      rawSleep.sort((a, b) => a.date - b.date);
-      const sleepHistory = rawSleep.slice(-12).map(s => s.sleep);
-      while(sleepHistory.length < 12) sleepHistory.unshift(7); // pad if not enough data
+      const processSessions = (arr) => {
+        arr.sort((a, b) => a.date - b.date);
+        return arr.slice(-14).map(item => ({
+          date: item.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+          value: item.value
+        }));
+      };
 
       setData({
-        runningTotal: rTotal,
-        cyclingTotal: cTotal,
-        swimmingTotal: sTotal,
+        runningTotal: rTotal, cyclingTotal: cTotal, swimmingTotal: sTotal,
         racket,
-        streak,
-        avgWater: wCount > 0 ? (wTotal / wCount).toFixed(1) : 0,
-        avgSleep: slCount > 0 ? (slTotal / slCount).toFixed(1) : 0,
-        monthlyRunning: mRunning,
-        monthlyCycling: mCycling,
-        monthlySwimming: mSwimming,
-        sleepHistory,
-        heatmap
+        runningSessions: processSessions(rawRunning),
+        cyclingSessions: processSessions(rawCycling),
+        swimmingSessions: processSessions(rawSwimming),
+        memories
       });
     };
     
@@ -130,210 +91,156 @@ export default function Sports() {
   }, []);
 
   return (
-    <PageWrapper title="Athletics" fullScreen={true}>
-      <div className="flex-1 h-full md:min-h-0 bg-[#f8f9fa] pt-16 pb-8 px-4 sm:px-8 lg:px-12 flex flex-col md:overflow-hidden overflow-y-auto">
-        <div className="w-full max-w-[1600px] mx-auto flex flex-col h-full">
-          
-          {/* Header */}
-          <div className="mb-6 flex justify-between items-end flex-shrink-0">
-            <div>
-              <h1 className="font-sans text-3xl md:text-4xl font-semibold text-zinc-900 tracking-tight mb-1">Athletics</h1>
-              <p className="font-sans text-sm text-zinc-500">Real-time telemetry and physical performance.</p>
-            </div>
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white rounded-full border border-zinc-200 shadow-sm">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider">Live Sync Active</span>
-            </div>
+    <PageWrapper title="Training Log" fullScreen={true}>
+      {/* Background Table Texture */}
+      <div className="flex-1 h-full bg-[#d6c7b5] md:p-8 lg:p-12 overflow-y-auto flex justify-center perspective-1000">
+        
+        {/* The Physical Logbook */}
+        <motion.div 
+          initial={{ rotateX: 5, y: 50, opacity: 0 }}
+          animate={{ rotateX: 0, y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="w-full max-w-[1200px] bg-[#fcfaf5] shadow-[0_20px_50px_rgba(0,0,0,0.3)] rounded-r-2xl rounded-l-md relative flex flex-col md:flex-row border border-[#e6decb]"
+          style={{ backgroundImage: 'linear-gradient(90deg, rgba(0,0,0,0.05) 0%, transparent 2%, transparent 98%, rgba(0,0,0,0.05) 100%)' }}
+        >
+          {/* Leather Spine */}
+          <div className="hidden md:block absolute left-0 top-0 bottom-0 w-12 bg-[#3a2818] shadow-[inset_-5px_0_15px_rgba(0,0,0,0.8)] z-20 rounded-l-md border-r border-[#1a110a]">
+            {/* Binding details */}
+            <div className="w-full h-px bg-white/10 mt-12" />
+            <div className="w-full h-px bg-white/10 mt-24" />
+            <div className="w-full h-px bg-white/10 mt-36" />
           </div>
 
-          {/* Strict 6x3 Bento Grid for Single Screen */}
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-6 md:grid-rows-3 gap-4 min-h-0 pb-4">
+          {/* Left Page (Cardio & Heatmap) */}
+          <div className="w-full md:w-1/2 p-8 md:pl-20 md:pr-12 relative border-b md:border-b-0 md:border-r border-[#e6decb]">
+            <h1 className="font-handwriting text-5xl text-[#2a221b] mb-2 transform -rotate-1">Athletics Log</h1>
+            <p className="font-mono text-[10px] text-gray-400 uppercase tracking-widest mb-10 border-b border-gray-300 pb-2">Volume I - Physical Telemetry</p>
             
-            {/* ROW 1 */}
+            {/* Scrapbook Polaroids for Cardio */}
+            <div className="flex flex-col gap-8 mb-12">
+              
+              {/* Running Note */}
+              <div className="relative group">
+                <div className="absolute -left-4 -top-4 w-8 h-8 opacity-40">
+                  <svg viewBox="0 0 100 100"><path d="M10,50 Q50,10 90,50 T10,50" fill="none" stroke="#2563eb" strokeWidth="2" className="animate-pulse" /></svg>
+                </div>
+                <h3 className="font-handwriting text-2xl text-[#1e3a8a] mb-2 flex items-center gap-2">
+                  <Activity size={20} className="stroke-2" /> Running - {data.runningTotal} km
+                </h3>
+                <div className="h-24 bg-white p-2 shadow-sm border border-gray-200 transform rotate-1">
+                  <HandDrawnBarChart data={data.runningSessions} color="#1e3a8a" unit="km" />
+                </div>
+                <div className="font-handwriting text-sm text-gray-500 mt-2 rotate-[-1deg]">Consistent pacing this year. Need to stretch more.</div>
+              </div>
+
+              {/* Cycling Note */}
+              <div className="relative group">
+                <h3 className="font-handwriting text-2xl text-[#065f46] mb-2 flex items-center gap-2">
+                  <Bike size={20} className="stroke-2" /> Cycling - {data.cyclingTotal} km
+                </h3>
+                <div className="h-24 bg-white p-2 shadow-sm border border-gray-200 transform -rotate-1">
+                  <HandDrawnBarChart data={data.cyclingSessions} color="#065f46" unit="km" />
+                </div>
+              </div>
+
+              {/* Swimming Note */}
+              <div className="relative group">
+                <h3 className="font-handwriting text-2xl text-[#0891b2] mb-2 flex items-center gap-2">
+                  <Droplets size={20} className="stroke-2" /> Swimming - {data.swimmingTotal} m
+                </h3>
+                <div className="h-24 bg-white p-2 shadow-sm border border-gray-200 transform rotate-1">
+                  <HandDrawnBarChart data={data.swimmingSessions} color="#0891b2" unit="m" />
+                </div>
+              </div>
+
+              {/* Racket Sports Sticky Note */}
+              <div className="bg-[#fef9c3] p-4 shadow-sm transform -rotate-1 w-full max-w-[280px] mt-4"
+                   style={{ clipPath: 'polygon(0 0, 100% 0, 100% 90%, 90% 100%, 0 100%)' }}>
+                <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-3 bg-red-500/20 shadow-sm transform rotate-2" /> {/* Tape */}
+                <h3 className="font-handwriting text-2xl text-gray-900 mb-2 border-b border-gray-300/50 pb-1">Racket Games</h3>
+                <ul className="font-handwriting text-lg text-gray-800 space-y-2">
+                  <li className="flex justify-between"><span>Tennis</span> <span>{data.racket.Tennis} matches</span></li>
+                  <li className="flex justify-between"><span>Badminton</span> <span>{data.racket.Badminton} matches</span></li>
+                  <li className="flex justify-between"><span>Squash</span> <span>{data.racket.Squash} matches</span></li>
+                  <li className="flex justify-between"><span>Pickleball</span> <span>{data.racket.Pickleball} matches</span></li>
+                </ul>
+              </div>
+
+            </div>
+
+            </div>
+
+          {/* Right Page (Racket Sports, Sleep, Streaks) */}
+          <div className="w-full md:w-1/2 p-8 md:pl-12 md:pr-16 relative">
+            {/* Red margin line like notebook paper */}
+            <div className="hidden md:block absolute left-8 top-0 bottom-0 w-px bg-red-400/50" />
             
-            {/* Running (col-span-2) */}
-            <BentoCard className="col-span-1 md:col-span-2 flex flex-col">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <div className="flex items-center gap-2 text-blue-600 mb-1">
-                    <Activity size={14} />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">Running</span>
-                  </div>
-                  <h2 className="text-xl font-semibold text-zinc-900">{data.runningTotal.toLocaleString()} <span className="text-sm font-normal text-zinc-500">km/yr</span></h2>
-                </div>
-              </div>
-              <div className="flex-1 min-h-0 mt-2 min-h-[120px]">
-                <BarChart data={data.monthlyRunning} color="#3b82f6" unit="km" />
-              </div>
-            </BentoCard>
-
-            {/* Cycling (col-span-2) */}
-            <BentoCard className="col-span-1 md:col-span-2 flex flex-col">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <div className="flex items-center gap-2 text-emerald-600 mb-1">
-                    <Bike size={14} />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">Cycling</span>
-                  </div>
-                  <h2 className="text-xl font-semibold text-zinc-900">{data.cyclingTotal.toLocaleString()} <span className="text-sm font-normal text-zinc-500">km/yr</span></h2>
-                </div>
-              </div>
-              <div className="flex-1 min-h-0 mt-2 min-h-[120px]">
-                <BarChart data={data.monthlyCycling} color="#10b981" unit="km" />
-              </div>
-            </BentoCard>
-
-            {/* Swimming (col-span-2) */}
-            <BentoCard className="col-span-1 md:col-span-2 flex flex-col">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <div className="flex items-center gap-2 text-cyan-600 mb-1">
-                    <Droplets size={14} />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">Swimming</span>
-                  </div>
-                  <h2 className="text-xl font-semibold text-zinc-900">{data.swimmingTotal.toLocaleString()} <span className="text-sm font-normal text-zinc-500">m/yr</span></h2>
-                </div>
-              </div>
-              <div className="flex-1 min-h-0 mt-2 min-h-[120px]">
-                <BarChart data={data.monthlySwimming} color="#06b6d4" unit="m" />
-              </div>
-            </BentoCard>
-
-            {/* ROW 2 */}
-
-            {/* Racket Sports Master Widget (col-span-3) */}
-            <BentoCard className="col-span-1 md:col-span-3 flex flex-col">
-               <div className="flex items-center gap-2 text-purple-600 mb-2 flex-shrink-0">
-                 <Trophy size={14} />
-                 <span className="text-[10px] font-bold uppercase tracking-widest">Racket Sports Record</span>
-               </div>
-               <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4 items-center">
-                  <RacketSportStats name="Tennis" games={data.racket.Tennis} color="#8b5cf6" />
-                  <RacketSportStats name="Badminton" games={data.racket.Badminton} color="#ec4899" />
-                  <RacketSportStats name="Squash" games={data.racket.Squash} color="#f59e0b" />
-                  <RacketSportStats name="Pickleball" games={data.racket.Pickleball} color="#06b6d4" />
-               </div>
-            </BentoCard>
-
-            {/* Quick Stats (col-span-1) */}
-            <BentoCard className="col-span-1 md:col-span-1 flex flex-col items-center justify-evenly py-4">
-               <div className="flex flex-col items-center gap-2 text-center w-full">
-                 <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500 shadow-sm border border-red-200">
-                    <Flame size={16} />
+              {/* Field Notes & Memories */}
+              <div className="mt-2 relative flex-1 flex flex-col h-full">
+                 <h3 className="font-handwriting text-3xl text-gray-800 mb-6 border-b border-gray-300 pb-2">Field Notes</h3>
+                 <div className="flex-1 overflow-y-auto hide-scrollbar space-y-8 pr-4">
+                    {data.memories.map((mem, i) => (
+                      <div key={i} className="relative group pl-4 border-l-2 border-red-300/50">
+                        <div className="font-mono text-[10px] text-gray-400 mb-2 tracking-widest uppercase">
+                          {mem.date.toLocaleDateString()}
+                          {(mem.run > 0 || mem.cyc > 0 || mem.swim > 0 || mem.rs !== 'None') && ' • '}
+                          {[mem.run > 0 && `${mem.run}km Run`, mem.cyc > 0 && `${mem.cyc}km Ride`, mem.swim > 0 && `${mem.swim}m Swim`, mem.rs !== 'None' && mem.rs].filter(Boolean).join(', ')}
+                        </div>
+                        <div className="font-handwriting text-2xl text-[#3a2818] leading-relaxed">
+                          "{mem.text}"
+                        </div>
+                        {mem.image && (
+                          <div className="mt-4 relative inline-block transform rotate-1 hover:rotate-0 transition-transform">
+                            <div className="bg-white p-2 pb-6 shadow-md border border-gray-200">
+                              <img src={mem.image} alt="Memory" className="w-full max-w-[200px] h-auto object-cover border border-gray-100" />
+                            </div>
+                            <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-3 bg-red-500/20 shadow-sm transform -rotate-2" />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    {data.memories.length === 0 && (
+                      <div className="font-handwriting text-2xl text-gray-400 italic mt-4">No field notes recorded yet...</div>
+                    )}
                  </div>
-                 <div>
-                   <div className="text-xl font-semibold text-zinc-900 leading-none">{data.streak}</div>
-                   <div className="text-[9px] text-zinc-500 uppercase tracking-widest mt-1">Day Streak</div>
-                 </div>
-               </div>
-               <div className="w-12 h-px bg-zinc-200 my-2" />
-               <div className="flex flex-col items-center gap-2 text-center w-full">
-                 <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shadow-sm border border-blue-200">
-                    <Activity size={16} />
-                 </div>
-                 <div>
-                   <div className="text-xl font-semibold text-zinc-900 leading-none">{data.avgWater} <span className="text-xs font-normal text-zinc-500">L</span></div>
-                   <div className="text-[9px] text-zinc-500 uppercase tracking-widest mt-1">Avg Hydration</div>
-                 </div>
-               </div>
-            </BentoCard>
-
-            {/* Recovery / Sleep (col-span-2) */}
-            <BentoCard className="col-span-1 md:col-span-2 flex flex-col">
-              <div className="flex justify-between items-start mb-2 flex-shrink-0">
-                <div>
-                  <div className="flex items-center gap-2 text-indigo-500 mb-1">
-                    <Activity size={14} />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">Recovery (Sleep)</span>
-                  </div>
-                  <h2 className="text-2xl font-semibold text-zinc-900">{data.avgSleep} <span className="text-sm font-normal text-zinc-500">hrs/night</span></h2>
-                </div>
               </div>
-              <div className="flex-1 min-h-0 mt-2 relative min-h-[120px]">
-                <LineChart data={data.sleepHistory} color="#6366f1" />
-              </div>
-            </BentoCard>
 
-            {/* ROW 3 */}
+            </div>
 
-            {/* Activity Heatmap (col-span-6) */}
-            <BentoCard className="col-span-1 md:col-span-6 flex flex-col min-h-[150px]">
-               <div className="flex justify-between items-end mb-4 flex-shrink-0">
-                 <div>
-                   <h3 className="text-sm font-semibold text-zinc-900 uppercase tracking-widest">Activity Heatmap</h3>
-                 </div>
-                 <div className="text-xs text-zinc-500">
-                   <span className="font-semibold text-zinc-900">{data.heatmap.filter(v => v > 0).length}</span> active days in past year
-                 </div>
-               </div>
-               <div className="flex-1 w-full min-h-0 relative mt-2">
-                 <div className="absolute inset-0 overflow-x-auto overflow-y-hidden hide-scrollbar">
-                   <div className="min-w-full h-full pb-2">
-                     <Heatmap data={data.heatmap} />
-                   </div>
-                 </div>
-               </div>
-            </BentoCard>
-
-          </div>
-        </div>
+        </motion.div>
       </div>
     </PageWrapper>
   )
 }
 
 // -------------------------------------------------------------
-// UI Components
+// Hand-Drawn Chart Components
 // -------------------------------------------------------------
 
-function BentoCard({ children, className = '' }) {
+function HandDrawnBarChart({ data, color, unit }) {
+  if (!data || data.length === 0) {
+    return <div className="w-full h-full flex items-center justify-center font-handwriting text-gray-400">No recent sessions</div>;
+  }
+  
+  const max = Math.max(...data.map(d => d.value), 1)
   return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className={`bg-white rounded-2xl p-4 md:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-zinc-100 ${className}`}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-// -------------------------------------------------------------
-// Chart Components
-// -------------------------------------------------------------
-
-function RacketSportStats({ name, games, color }) {
-  return (
-    <div className="flex flex-col items-center justify-center h-full">
-      <div className="w-14 h-14 sm:w-16 sm:h-16 mb-2">
-         <GameCountRing games={games} color={color} />
-      </div>
-      <div className="text-center w-full">
-        <h4 className="font-semibold text-zinc-900 mb-0.5 text-xs">{name}</h4>
-        <div className="text-zinc-400 text-[9px] uppercase tracking-wider">Total Games</div>
-      </div>
-    </div>
-  )
-}
-
-function BarChart({ data, color, unit }) {
-  const max = Math.max(...data, 1) // avoid div by 0
-  return (
-    <div className="w-full h-full flex items-end gap-1.5">
-      {data.map((value, i) => {
-        const h = (value / max) * 100
+    <div className="w-full h-full flex items-end gap-2">
+      {data.map((item, i) => {
+        const h = (item.value / max) * 100
+        // Add random slight height jitter and rotation for hand-drawn feel
+        const rot = (Math.random() * 2 - 1)
         return (
-          <div key={i} className="flex-1 h-full flex flex-col justify-end group relative">
+          <div key={i} className="flex-1 h-full flex flex-col justify-end group relative items-center">
             <motion.div 
               initial={{ height: "0%" }}
               whileInView={{ height: `${h}%` }}
-              transition={{ duration: 0.8, delay: i * 0.05, ease: "easeOut" }}
-              className="w-full rounded-t-sm transition-opacity group-hover:opacity-80"
-              style={{ backgroundColor: color }}
+              transition={{ duration: 0.8, delay: i * 0.05 }}
+              className="w-full rounded-sm opacity-80 group-hover:opacity-100"
+              style={{ backgroundColor: color, transform: `rotate(${rot}deg)` }}
             />
-            {/* Tooltip */}
-            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-              {value} {unit}
+            <div className="absolute -top-10 bg-[#fcfaf5] border border-gray-300 text-gray-800 font-handwriting text-sm px-2 py-0.5 shadow-sm opacity-0 group-hover:opacity-100 pointer-events-none z-10 transform -rotate-2 whitespace-nowrap flex flex-col items-center">
+              <span>{item.value} {unit}</span>
+              <span className="text-[10px] text-gray-500 font-sans tracking-wide leading-none">{item.date}</span>
             </div>
           </div>
         )
@@ -342,126 +249,4 @@ function BarChart({ data, color, unit }) {
   )
 }
 
-function LineChart({ data, color }) {
-  const min = Math.min(...data) - 1
-  const max = Math.max(...data) + 1
-  const range = max - min || 1
 
-  // Generate path
-  const points = data.map((val, i) => {
-    const x = (i / (data.length - 1)) * 100
-    const y = 100 - ((val - min) / range) * 100
-    return `${x},${y}`
-  }).join(' L ')
-  const pathD = `M ${points}`
-
-  return (
-    <div className="w-full h-full relative mt-2 pb-2">
-      <svg className="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
-        <line x1="0" y1="25" x2="100" y2="25" stroke="#f4f4f5" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-        <line x1="0" y1="50" x2="100" y2="50" stroke="#f4f4f5" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-        <line x1="0" y1="75" x2="100" y2="75" stroke="#f4f4f5" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-        
-        <motion.path 
-          d={pathD}
-          fill="none"
-          stroke={color}
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-          initial={{ pathLength: 0 }}
-          whileInView={{ pathLength: 1 }}
-          transition={{ duration: 1.5, ease: "easeInOut" }}
-        />
-      </svg>
-
-      {/* HTML Absolute Points for perfect circularity and Tooltips */}
-      {data.map((val, i) => {
-        const x = (i / (data.length - 1)) * 100
-        const y = 100 - ((val - min) / range) * 100
-        return (
-          <motion.div 
-            key={i} 
-            className="absolute w-3 h-3 bg-white border-2 rounded-full cursor-pointer group hover:scale-125 transition-transform z-20"
-            style={{ 
-              left: `calc(${x}% - 6px)`, 
-              top: `calc(${y}% - 6px)`,
-              borderColor: color
-            }}
-            initial={{ scale: 0 }} whileInView={{ scale: 1 }}
-            transition={{ delay: 1.5 + (i * 0.05) }}
-          >
-            {/* Tooltip */}
-            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-              {val} hrs
-            </div>
-          </motion.div>
-        )
-      })}
-    </div>
-  )
-}
-
-function GameCountRing({ games, color }) {
-  const strokeWidth = 10
-  const radius = (100 - strokeWidth) / 2
-  const circumference = radius * 2 * Math.PI
-  const dashArray = `${circumference} ${circumference}`
-  
-  return (
-    <div className="relative w-full h-full">
-      <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-        <circle cx="50" cy="50" r={radius} fill="none" stroke="#f4f4f5" strokeWidth={strokeWidth} />
-        <motion.circle 
-          cx="50" cy="50" r={radius} fill="none" stroke={color} strokeWidth={strokeWidth} 
-          strokeDasharray={dashArray} strokeLinecap="round"
-          initial={{ strokeDashoffset: circumference }}
-          whileInView={{ strokeDashoffset: 0 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-base sm:text-lg font-bold text-zinc-900 leading-none">{games}</span>
-      </div>
-    </div>
-  )
-}
-
-function Heatmap({ data }) {
-  const weeks = []
-  for (let i = 0; i < 52; i++) {
-    weeks.push(data.slice(i * 7, (i + 1) * 7))
-  }
-  const getColor = (val) => {
-    if (val === 0) return '#f4f4f5'
-    if (val === 1) return '#dcfce7'
-    if (val === 2) return '#86efac'
-    if (val === 3) return '#22c55e'
-    return '#166534'
-  }
-  return (
-    <div className="flex gap-1 sm:gap-1.5 justify-between w-full h-full">
-      {weeks.map((week, wIdx) => (
-        <div key={wIdx} className="flex flex-col gap-1 sm:gap-1.5 h-full justify-between flex-1">
-          {week.map((dayVal, dIdx) => (
-            <div key={dIdx} className="w-full flex-1 relative group">
-              <motion.div 
-                className="w-full h-full rounded-[2px]"
-                style={{ backgroundColor: getColor(dayVal) }}
-                initial={{ scale: 0 }}
-                whileInView={{ scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: (wIdx * 0.01) + (dIdx * 0.005) }}
-              />
-              {/* Tooltip */}
-              <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                Level {dayVal}
-              </div>
-            </div>
-          ))}
-        </div>
-      ))}
-    </div>
-  )
-}

@@ -257,7 +257,7 @@ export default function Dashboard() {
               <GenericEngine 
                 collectionName="athletics" 
                 title="Athletics & Sports" 
-                description="Log your daily activities, sleep, and physical milestones."
+                description="Log your daily activities and related memories."
                 schema={[
                   { name: 'date', label: 'Date', type: 'date' },
                   { name: 'gym', label: 'Gym', type: 'select', options: ['No', 'Yes'] },
@@ -265,8 +265,8 @@ export default function Dashboard() {
                   { name: 'swimming', label: 'Swimming (m)', type: 'number', defaultValue: '0' },
                   { name: 'running', label: 'Running (km)', type: 'number', defaultValue: '0' },
                   { name: 'racketSport', label: 'Racket Sport', type: 'select', options: ['None', 'Tennis', 'Badminton', 'Squash', 'Pickleball'], defaultValue: 'None' },
-                  { name: 'water', label: 'Water Intake (L)', type: 'number', defaultValue: '0' },
-                  { name: 'sleep', label: 'Sleep (hours)', type: 'number', defaultValue: '0' }
+                  { name: 'journal', label: 'Journal/Memory', type: 'textarea' },
+                  { name: 'image', label: 'Memory Photo (Optional)', type: 'image' }
                 ]}
               />
             )}

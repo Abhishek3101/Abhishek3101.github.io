@@ -42,17 +42,27 @@ export default function Curations() {
     <PageWrapper title="Curations" fullScreen={true}>
       
       {/* The Room Background */}
-      <div className="flex-1 h-full md:min-h-0 bg-[#14100e] pt-16 pb-8 px-4 sm:px-12 relative md:overflow-hidden overflow-y-auto flex flex-col">
+      <div 
+        className="flex-1 h-full md:min-h-0 pt-16 pb-8 px-4 sm:px-12 relative md:overflow-hidden overflow-y-auto flex flex-col"
+        style={{
+          backgroundImage: "url('/wood_panel.png')",
+          backgroundSize: "500px",
+          backgroundRepeat: "repeat",
+          boxShadow: "inset 0 0 150px rgba(0,0,0,0.9)"
+        }}
+      >
+        {/* Darkening Wood Overlay */}
+        <div className="absolute inset-0 bg-[#2a180a]/60 pointer-events-none mix-blend-multiply z-0" />
         
-        {/* Dynamic Spotlights illuminating the shelves */}
-        <div className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(255,220,150,0.1)_0%,transparent_70%)] pointer-events-none z-0" />
-        <div className="absolute top-[800px] right-1/4 w-[1000px] h-[1000px] bg-[radial-gradient(circle,rgba(255,220,150,0.08)_0%,transparent_70%)] pointer-events-none z-0" />
+        {/* Soft Room Lighting */}
+        <div className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(255,255,255,0.4)_0%,transparent_70%)] pointer-events-none z-0" />
+        <div className="absolute top-[800px] right-1/4 w-[1000px] h-[1000px] bg-[radial-gradient(circle,rgba(255,255,255,0.3)_0%,transparent_70%)] pointer-events-none z-0" />
 
         <div className="w-full max-w-7xl mx-auto relative z-10 flex flex-col h-full">
           
-          <div className="mb-8 text-center flex-shrink-0">
-            <h1 className="font-serif text-4xl md:text-5xl text-[#f4ecd8] mb-2 tracking-tight drop-shadow-lg">Cabinet of Curiosities</h1>
-            <p className="font-mono text-[#8c7a6b] max-w-2xl mx-auto text-xs uppercase tracking-widest">
+          <div className="mb-8 text-center flex-shrink-0 relative z-10">
+            <h1 className="font-serif text-4xl md:text-5xl text-[#fdfbf7] mb-2 tracking-tight drop-shadow-md">Cabinet of Curiosities</h1>
+            <p className="font-mono text-[#d2c4b3] max-w-2xl mx-auto text-xs uppercase tracking-widest drop-shadow-sm">
               The media, books, and art that shaped the architecture of my mind.
             </p>
           </div>
@@ -95,24 +105,24 @@ function MuseumShelf({ title, children }) {
   return (
     <div className="w-full relative pt-6 flex-shrink-0">
       {/* Shelf Brass Plaque Label */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-[#2a1f1a] border border-[#5d4037] px-4 py-1.5 rounded-sm shadow-[0_5px_10px_rgba(0,0,0,0.5)] z-20">
-        <span className="font-mono text-[9px] text-[#bda98c] uppercase tracking-[0.3em]">{title}</span>
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-[#d2c4b3] border border-[#a68668] px-4 py-1.5 rounded-sm shadow-md z-20">
+        <span className="font-mono text-[9px] text-[#5d4037] uppercase tracking-[0.3em] font-bold">{title}</span>
         {/* Brass screws */}
-        <div className="absolute left-2 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-[#8c7a6b] shadow-inner" />
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-[#8c7a6b] shadow-inner" />
+        <div className="absolute left-2 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-[#4a3b32] shadow-inner" />
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-[#4a3b32] shadow-inner" />
       </div>
 
       {/* The Physical Objects */}
-      <div className="relative z-10 flex items-end justify-start md:justify-center gap-4 md:gap-12 px-4 pb-2 h-40 sm:h-56 overflow-x-auto md:overflow-x-visible hide-scrollbar">
+      <div className="relative z-20 flex flex-nowrap items-end gap-6 md:gap-10 pb-4 px-4 overflow-x-auto hide-scrollbar snap-x">
         {children}
       </div>
 
       {/* The Wood Shelf Surface & Edge */}
       <div className="relative z-0 w-full mx-auto" style={{ maxWidth: '95%' }}>
         {/* Top of the shelf (the surface items sit on) */}
-        <div className="h-4 w-full bg-gradient-to-b from-[#3a261c] to-[#2c1d15] rounded-t-sm" />
+        <div className="h-4 w-full bg-gradient-to-b from-[#8b5a33] to-[#5c3a21] rounded-t-sm" />
         {/* Front face of the shelf */}
-        <div className="h-3 w-full bg-gradient-to-b from-[#1a110c] to-[#0d0806] rounded-b-md shadow-[0_15px_30px_rgba(0,0,0,0.9)]" />
+        <div className="h-4 w-full bg-gradient-to-b from-[#4a2e1b] to-[#2d1b0f] rounded-b-md shadow-[0_20px_40px_rgba(0,0,0,0.6)] border-t border-white/5 border-b border-black/50" />
       </div>
     </div>
   )
@@ -130,7 +140,7 @@ function CurationObject({ item, onClick }) {
       whileHover={{ y: -10, scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
-      className="cursor-pointer relative group perspective-1000"
+      className="cursor-pointer relative group perspective-1000 snap-center flex-shrink-0"
     >
       {/* Hover Spotlight underneath the item */}
       <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3/4 h-4 bg-[#ffedd5] opacity-0 blur-xl group-hover:opacity-20 transition-opacity duration-500 rounded-full" />
@@ -213,18 +223,18 @@ function ExpandedItemModal({ item, onClose }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-[#0a0807]/90 backdrop-blur-md"
+        className="absolute inset-0 bg-white/60 backdrop-blur-md"
         onClick={onClose}
       />
       
       <motion.div 
         layoutId={`curation-${item.id}`}
-        className="relative w-full max-w-4xl flex flex-col md:flex-row bg-[#1a1614] rounded-lg shadow-[0_30px_60px_rgba(0,0,0,1)] border border-[#3a2e28] overflow-hidden z-10"
+        className="relative w-full max-w-4xl flex flex-col md:flex-row bg-[#fdfbf7] rounded-lg shadow-2xl border border-[#d2c4b3] overflow-hidden z-10"
         onClick={e => e.stopPropagation()}
       >
         {/* Left Side: The massive artwork */}
-        <div className="w-full md:w-1/2 h-64 md:h-auto relative bg-black flex items-center justify-center overflow-hidden border-b md:border-b-0 md:border-r border-[#3a2e28]">
-          <img src={item.image} alt={item.title} className="absolute inset-0 w-full h-full object-cover opacity-30 blur-md scale-110" />
+        <div className="w-full md:w-1/2 h-64 md:h-auto relative bg-[#efe7d8] flex items-center justify-center overflow-hidden border-b md:border-b-0 md:border-r border-[#d2c4b3]">
+          <img src={item.image} alt={item.title} className="absolute inset-0 w-full h-full object-cover opacity-20 blur-md scale-110" />
           
           {/* Re-render the physical item large */}
           <div className="relative z-10 transform scale-125 drop-shadow-2xl">
@@ -262,30 +272,30 @@ function ExpandedItemModal({ item, onClose }) {
         <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative">
           
           <div className="flex items-center gap-3 mb-6">
-            {isBook && <BookOpen size={18} className="text-[#bda98c]" />}
-            {isVinyl && <Disc3 size={18} className="text-[#bda98c]" />}
-            {isArticle && <FileText size={18} className="text-[#bda98c]" />}
-            {isVideo && <Play size={18} className="text-[#bda98c]" />}
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-[#8c7a6b]">{item.type}</span>
+            {isBook && <BookOpen size={18} className="text-[#8c7a6b]" />}
+            {isVinyl && <Disc3 size={18} className="text-[#8c7a6b]" />}
+            {isArticle && <FileText size={18} className="text-[#8c7a6b]" />}
+            {isVideo && <Play size={18} className="text-[#8c7a6b]" />}
+            <span className="font-mono text-xs uppercase tracking-[0.2em] text-[#5d4037]">{item.type}</span>
           </div>
 
-          <h2 className="font-serif text-3xl md:text-4xl text-[#f4ecd8] mb-2 leading-tight">
+          <h2 className="font-serif text-3xl md:text-4xl text-[#2a1f1a] mb-2 leading-tight">
             {item.title}
           </h2>
           
-          <h3 className="font-mono text-sm text-[#bda98c] mb-8 uppercase tracking-widest">
+          <h3 className="font-mono text-sm text-[#5d4037] mb-8 uppercase tracking-widest">
             {item.author}
           </h3>
           
-          <div className="w-12 h-1 bg-[#5d4037] mb-8" />
+          <div className="w-12 h-1 bg-[#d2c4b3] mb-8" />
           
-          <p className="font-serif text-lg leading-relaxed text-[#cbbba9]">
+          <p className="font-serif text-lg leading-relaxed text-[#4a3b32]">
             {item.desc}
           </p>
 
           <button 
             onClick={onClose}
-            className="absolute top-6 right-6 p-2 text-[#8c7a6b] hover:text-[#f4ecd8] transition-colors"
+            className="absolute top-6 right-6 p-2 text-[#8c7a6b] hover:text-[#2a1f1a] transition-colors"
           >
             <X size={24} />
           </button>

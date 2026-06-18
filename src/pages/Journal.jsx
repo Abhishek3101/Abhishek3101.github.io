@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import PageWrapper from '@/components/PageWrapper'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Volume2, VolumeX, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
 import { db } from '@/lib/firebase'
 import { collection, getDocs } from 'firebase/firestore'
@@ -17,8 +17,6 @@ const MOOD_COLORS = {
 export default function Journal() {
   const [entries, setEntries] = useState([])
   const [activeEntryId, setActiveEntryId] = useState(null)
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false)
-  const audioCtxRef = useRef(null)
 
   useEffect(() => {
     const fetchJournal = async () => {
@@ -45,115 +43,6 @@ export default function Journal() {
 
   const activeEntry = entries.find(e => e.id === activeEntryId)
 
-  // Synthesize wind and birds using Web Audio API
-  const toggleNature = () => {
-    if (!audioCtxRef.current) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext
-      const ctx = new AudioContext()
-      audioCtxRef.current = ctx
-      audioCtxRef.current.isPlayingNature = true
-
-      // --- WIND SYNTHESIZER ---
-      const bufferSize = ctx.sampleRate * 2
-      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
-      const output = noiseBuffer.getChannelData(0)
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = Math.random() * 2 - 1 // White noise
-      }
-
-      const windSource = ctx.createBufferSource()
-      windSource.buffer = noiseBuffer
-      windSource.loop = true
-
-      const windFilter = ctx.createBiquadFilter()
-      windFilter.type = 'lowpass'
-      windFilter.frequency.value = 300 // Base muffled wind
-
-      // LFO (Low Frequency Oscillator) to simulate wind gusts
-      const windLfo = ctx.createOscillator()
-      windLfo.type = 'sine'
-      windLfo.frequency.value = 0.1 // Very slow cycle (10 seconds)
-      
-      const lfoGain = ctx.createGain()
-      lfoGain.gain.value = 400 // Modulate the filter frequency by +/- 400Hz
-
-      windLfo.connect(lfoGain)
-      lfoGain.connect(windFilter.frequency)
-
-      const windGain = ctx.createGain()
-      windGain.gain.value = 0.08 // Keep wind quiet
-
-      windSource.connect(windFilter)
-      windFilter.connect(windGain)
-      windGain.connect(ctx.destination)
-
-      windSource.start(0)
-      windLfo.start(0)
-
-      // --- BIRD CHIRP SYNTHESIZER ---
-      const scheduleChirp = () => {
-        if (!audioCtxRef.current || !audioCtxRef.current.isPlayingNature) return
-
-        const now = ctx.currentTime
-        const osc = ctx.createOscillator()
-        const gain = ctx.createGain()
-        
-        osc.type = 'sine'
-        // High pitch start, dropping quickly (typical bird chirp)
-        const startPitch = 2500 + Math.random() * 1500
-        const endPitch = startPitch - (500 + Math.random() * 500)
-        
-        osc.frequency.setValueAtTime(startPitch, now)
-        osc.frequency.exponentialRampToValueAtTime(endPitch, now + 0.15)
-        
-        // Volume envelope (sharp attack, quick fade)
-        gain.gain.setValueAtTime(0, now)
-        gain.gain.linearRampToValueAtTime(0.03, now + 0.02) // Quiet chirp
-        gain.gain.linearRampToValueAtTime(0, now + 0.15)
-
-        osc.connect(gain)
-        gain.connect(ctx.destination)
-        
-        osc.start(now)
-        osc.stop(now + 0.15)
-
-        // Randomize next chirp (sometimes quick double-chirps, sometimes long pauses)
-        const isDoubleChirp = Math.random() > 0.7
-        const nextDelay = isDoubleChirp ? 200 : 2000 + Math.random() * 5000
-        
-        setTimeout(scheduleChirp, nextDelay)
-      }
-      
-      // Start the bird loop
-      scheduleChirp()
-    }
-
-    if (isAudioPlaying) {
-      audioCtxRef.current.suspend()
-      audioCtxRef.current.isPlayingNature = false
-      setIsAudioPlaying(false)
-    } else {
-      audioCtxRef.current.resume()
-      audioCtxRef.current.isPlayingNature = true
-      setIsAudioPlaying(true)
-      
-      // We need to re-trigger the bird loop if it was suspended
-      // But actually, `suspend()` pauses the AudioContext time, so we just let it resume.
-      // However, `setTimeout` runs in main thread. So we need a mechanism:
-      // To keep it simple, we just rely on `suspend` pausing the audio. 
-      // The timeouts will keep firing but producing no sound until resumed.
-    }
-  }
-
-  // Cleanup audio context on unmount
-  useEffect(() => {
-    return () => {
-      if (audioCtxRef.current) {
-        audioCtxRef.current.close()
-      }
-    }
-  }, [])
-
   if (!activeEntry) {
     return (
       <PageWrapper title="Journal" fullScreen={true}>
@@ -177,27 +66,6 @@ export default function Journal() {
                 The Ledger
               </h1>
             </div>
-            <button 
-              onClick={toggleNature}
-              className="flex items-center gap-3 px-4 py-2 rounded-full backdrop-blur-md border border-black/10 shadow-sm transition-all hover:scale-105 active:scale-95"
-              style={{ backgroundColor: `${activeEntry.paperColor}80`, color: activeEntry.textColor }}
-            >
-              {isAudioPlaying ? (
-                <>
-                  <div className="flex gap-[2px] h-4 items-center">
-                    <motion.div animate={{ height: ["4px", "14px", "4px"] }} transition={{ repeat: Infinity, duration: 0.8 }} className="w-1 bg-current rounded-full" />
-                    <motion.div animate={{ height: ["8px", "16px", "8px"] }} transition={{ repeat: Infinity, duration: 1.0, delay: 0.1 }} className="w-1 bg-current rounded-full" />
-                    <motion.div animate={{ height: ["4px", "12px", "4px"] }} transition={{ repeat: Infinity, duration: 0.9, delay: 0.2 }} className="w-1 bg-current rounded-full" />
-                  </div>
-                  <span className="text-xs font-semibold uppercase tracking-widest hidden sm:block">Ambient: On</span>
-                </>
-              ) : (
-                <>
-                  <VolumeX size={16} />
-                  <span className="text-xs font-semibold uppercase tracking-widest hidden sm:block">Ambient: Off</span>
-                </>
-              )}
-            </button>
           </div>
 
           {/* The Flipbook Layout */}

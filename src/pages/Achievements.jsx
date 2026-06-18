@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import PageWrapper from '@/components/PageWrapper'
-import { motion, AnimatePresence, useAnimation } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Terminal, GraduationCap, Rocket, Users, Briefcase, Building, Mountain, Anchor, Code, Layout, Heart, Home, X, ChevronRight } from 'lucide-react'
 
 import { db } from '@/lib/firebase'
@@ -22,23 +22,30 @@ const getIconForCategory = (cat) => {
   return Terminal
 }
 
-// Generate an auto-layout spiral starting from the center
+// Generate viewport-relative layout positions (percentages)
+// Items are scattered across the viewport in a pleasing spiral pattern
 const generateLayout = (items) => {
-  const centerX = 1500;
-  const centerY = 1500;
+  const centerX = 50; // center of viewport in %
+  const centerY = 50;
   
   return items.map((item, index) => {
-    // Spiral logic
-    const angle = index * 1.5;
-    const radius = 200 + (index * 80);
+    const count = items.length || 1;
+    // Spiral with tighter radius that fits in viewport
+    // Max radius ~35% so items stay within 15%-85% of viewport
+    const angle = index * (2.4 + (1.0 / count));
+    const maxRadius = Math.min(35, 15 + count * 2);
+    const radius = 8 + (index / Math.max(count - 1, 1)) * maxRadius;
     const x = centerX + radius * Math.cos(angle);
     const y = centerY + radius * Math.sin(angle);
-    const rotation = (Math.random() * 30) - 15;
+    // Clamp to keep items within viewport bounds (with padding for item size)
+    const clampedX = Math.max(5, Math.min(88, x));
+    const clampedY = Math.max(8, Math.min(85, y));
+    const rotation = (Math.random() * 20) - 10;
     
     return {
       ...item,
-      x,
-      y,
+      x: clampedX,
+      y: clampedY,
       rotation,
       type: getTypeForCategory(item.category),
       icon: getIconForCategory(item.category)
@@ -50,11 +57,7 @@ export default function Achievements() {
   const [items, setItems] = useState([])
   const [connections, setConnections] = useState([])
   const [selectedItem, setSelectedItem] = useState(null)
-  const constraintsRef = useRef(null)
   const containerRef = useRef(null)
-  
-  // Center the desk initially
-  const controls = useAnimation()
 
   useEffect(() => {
     const fetchAchievements = async () => {
@@ -75,99 +78,23 @@ export default function Achievements() {
       setConnections(conns);
     };
     fetchAchievements();
-
-    // Center the desk initially
-    const clusterCenterX = 1500;
-    const clusterCenterY = 1500;
-    const targetX = (window.innerWidth / 2) - clusterCenterX;
-    const targetY = (window.innerHeight / 2) - clusterCenterY;
-
-    // Initial animation to show it's draggable and center it perfectly
-    controls.start({
-      x: targetX,
-      y: targetY,
-      transition: { type: 'spring', stiffness: 50, damping: 20 }
-    })
-
-    const handleMouseMove = (e) => {
-      if (!containerRef.current) return;
-      // Update CSS variables for the flashlight position
-      containerRef.current.style.setProperty('--mouse-x', `${e.clientX}px`);
-      containerRef.current.style.setProperty('--mouse-y', `${e.clientY}px`);
-    }
-
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [controls])
+  }, [])
 
   return (
-    <PageWrapper title="The Desk" fullScreen={true}>
+    <PageWrapper title="Notice Board" fullScreen={true}>
       
-      {/* Viewport for dragging and mobile view */}
-      <div 
-        ref={(el) => {
-          constraintsRef.current = el;
-          containerRef.current = el;
-        }} 
-        className="w-full flex-1 flex flex-col relative"
-      >
-        {/* Mobile/Tablet List View (Grid) */}
-        <div className="md:hidden w-full h-full p-4 overflow-y-auto bg-[#faf9f5]">
-          <h2 className="font-serif text-3xl mb-8 mt-4 text-center text-gray-800">Timeline</h2>
-          <div className="flex flex-col gap-6 max-w-md mx-auto pb-12">
-            {items.map((item) => (
-              <div 
-                key={item.id} 
-                className="bg-white p-5 rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-100 flex gap-4 items-start cursor-pointer transition-transform hover:scale-[1.02]"
-                onClick={() => setSelectedItem(item)}
-              >
-                <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0 border border-orange-100">
-                  <item.icon size={20} className="text-orange-800/70" />
-                </div>
-                <div>
-                  <h3 className="font-serif text-lg font-bold text-gray-900 leading-tight mb-1">{item.title}</h3>
-                  <p className="font-mono text-xs text-gray-500 mb-2">{item.date} • {item.category}</p>
-                  <p className="text-sm text-gray-600 line-clamp-2">{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div ref={containerRef} className="w-full flex-1 flex flex-col relative">
 
-        {/* The massive desk surface (Desktop Only) */}
-        <div className="hidden md:block w-full h-full overflow-hidden bg-[#0a0705] relative select-none cursor-grab active:cursor-grabbing">
-          {/* Dynamic Flashlight Overlay */}
+
+        {/* Desktop: Viewport-sized corkboard */}
+        <div className="hidden md:flex absolute inset-0 overflow-hidden bg-[#e0ccba] select-none">
+          
+          {/* The corkboard surface */}
           <div 
-            className="absolute inset-0 z-30 pointer-events-none transition-opacity duration-500"
-            style={{ 
-              opacity: selectedItem ? 0 : 1,
-              background: 'radial-gradient(circle 400px at var(--mouse-x, 50vw) var(--mouse-y, 50vh), transparent 0%, rgba(5,3,2,0.85) 100%)' 
-            }} 
-          />
-
-          {/* Instructions overlay */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none opacity-50 bg-black/50 text-white px-6 py-2 rounded-full font-handwriting text-xl backdrop-blur-sm border border-white/10">
-            Click and drag to explore the desk
-          </div>
-
-          <motion.div 
-            drag 
-            dragConstraints={constraintsRef}
-            dragElastic={0.2}
-            dragMomentum={true}
-            animate={controls}
-            initial={{ x: -1000, y: -1000 }}
-            className="relative w-[3000px] h-[3000px] bg-[#2c1e16]"
+            className="absolute inset-0 bg-[#c6a37b]"
             style={{
-              // Wood grain texture
-              backgroundImage: `
-                linear-gradient(rgba(0,0,0,0.1) 2px, transparent 2px),
-                linear-gradient(90deg, rgba(0,0,0,0.1) 2px, transparent 2px),
-                linear-gradient(rgba(20, 10, 5, 0.4) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(20, 10, 5, 0.4) 1px, transparent 1px)
-              `,
-              backgroundSize: '100px 100px, 100px 100px, 20px 20px, 20px 20px',
-              boxShadow: 'inset 0 0 400px rgba(0,0,0,0.9)'
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E")`,
+              boxShadow: 'inset 0 0 100px rgba(90, 60, 30, 0.4)'
             }}
           >
             {/* Red String Timeline SVG Layer */}
@@ -182,42 +109,24 @@ export default function Achievements() {
                 const itemB = items.find(i => i.id === idB)
                 if (!itemA || !itemB) return null;
                 
-                // Add offset so the string originates roughly from the center of the objects
-                const x1 = itemA.x + 80;
-                const y1 = itemA.y + 80;
-                const x2 = itemB.x + 80;
-                const y2 = itemB.y + 80;
+                // Positions are in %, offset slightly toward center of each item
+                const x1 = `${itemA.x + 2}%`;
+                const y1 = `${itemA.y + 3}%`;
+                const x2 = `${itemB.x + 2}%`;
+                const y2 = `${itemB.y + 3}%`;
 
                 return (
                   <g key={idx}>
-                    {/* The red yarn */}
-                    <line 
-                      x1={x1} y1={y1} x2={x2} y2={y2} 
-                      stroke="#991b1b" 
-                      strokeWidth="4"
-                      filter="url(#string-shadow)"
-                      strokeLinecap="round"
-                      className="opacity-80"
-                    />
-                    {/* Yarn threads texture */}
-                    <line 
-                      x1={x1} y1={y1} x2={x2} y2={y2} 
-                      stroke="#ef4444" 
-                      strokeWidth="1.5"
-                      strokeDasharray="4 2"
-                      className="opacity-60"
-                    />
-                    {/* The Push Pins */}
-                    <circle cx={x1} cy={y1} r="6" fill="#dc2626" stroke="#450a0a" strokeWidth="2" filter="url(#string-shadow)" />
-                    <circle cx={x1-2} cy={y1-2} r="2" fill="#fca5a5" /> {/* Pin highlight */}
-                    
-                    <circle cx={x2} cy={y2} r="6" fill="#dc2626" stroke="#450a0a" strokeWidth="2" filter="url(#string-shadow)" />
+                    <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#991b1b" strokeWidth="3" filter="url(#string-shadow)" strokeLinecap="round" className="opacity-80" />
+                    <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#ef4444" strokeWidth="1.5" strokeDasharray="4 2" className="opacity-60" />
+                    <circle cx={x1} cy={y1} r="5" fill="#dc2626" stroke="#450a0a" strokeWidth="2" filter="url(#string-shadow)" />
+                    <circle cx={x2} cy={y2} r="5" fill="#dc2626" stroke="#450a0a" strokeWidth="2" filter="url(#string-shadow)" />
                   </g>
                 )
               })}
             </svg>
 
-            {/* Desk Items */}
+            {/* Desk Items — positioned with % */}
             {items.map((item) => (
               <DeskItem 
                 key={item.id} 
@@ -227,11 +136,14 @@ export default function Achievements() {
               />
             ))}
 
-            {/* Aesthetic Desk Props (Non-interactive) */}
-            <div className="absolute w-64 h-64 border-4 border-white/5 rounded-full pointer-events-none" style={{ left: 1300, top: 1400 }} /> {/* Coffee ring */}
-            <div className="absolute w-40 h-40 bg-black/20 blur-xl rounded-full pointer-events-none" style={{ left: 1800, top: 1600 }} /> {/* Shadow of a lamp */}
+            {/* Aesthetic Corkboard Props */}
+            <div className="absolute w-[95%] h-[95%] border-[16px] border-[#6b4e36] rounded-xl shadow-2xl pointer-events-none" style={{ left: '2.5%', top: '2.5%' }} />
+          </div>
 
-          </motion.div>
+          {/* Hint overlay */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none opacity-80 bg-white/80 text-[#6b4e36] px-6 py-2 rounded-md font-sans text-sm shadow-sm backdrop-blur-sm border border-black/10">
+            Click on any pinned item to examine it
+          </div>
         </div>
       </div>
 
@@ -262,6 +174,33 @@ export default function Achievements() {
         document.body
       )}
 
+        {/* Mobile: Vertical List Layout maintaining aesthetics */}
+        <div className="md:hidden pt-24 px-4 pb-12 bg-[#c6a37b] min-h-screen relative overflow-hidden" 
+             style={{
+               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter2)' opacity='0.15'/%3E%3C/svg%3E")`,
+               boxShadow: 'inset 0 0 50px rgba(90, 60, 30, 0.4)'
+             }}
+        >
+           <h1 className="font-handwriting text-4xl text-[#3d2314] text-center mb-8 border-b-2 border-red-800/20 pb-4 inline-block w-full">Notice Board</h1>
+           
+           <div className="flex flex-col gap-16 items-center relative z-10 mt-8">
+             {items.map((item, idx) => (
+               <div key={item.id} className="relative w-full h-48 sm:h-56 flex justify-center">
+                 {/* Re-use DeskItem but center it in this block */}
+                 <DeskItem 
+                   item={{...item, x: 10, y: 10, rotation: item.rotation || (Math.random() * 6 - 3) }} 
+                   onClick={() => setSelectedItem(item)} 
+                 />
+                 
+                 {/* Red string connecting down to next item */}
+                 {idx < items.length - 1 && (
+                   <div className="absolute top-[80%] left-[30%] w-0.5 h-32 bg-red-600/80 shadow-[2px_0_5px_rgba(0,0,0,0.5)] z-0 transform rotate-[15deg] origin-top opacity-60" />
+                 )}
+               </div>
+             ))}
+           </div>
+        </div>
+
     </PageWrapper>
   )
 }
@@ -277,72 +216,87 @@ function DeskItem({ item, onClick, isDimmed }) {
     <motion.div
       className={`absolute cursor-pointer transition-opacity duration-300 ${isDimmed ? 'opacity-40' : 'opacity-100 hover:z-10'}`}
       style={{
-        left: item.x,
-        top: item.y,
+        left: `${item.x}%`,
+        top: `${item.y}%`,
         rotate: item.rotation,
       }}
-      whileHover={{ scale: 1.05, rotate: item.rotation > 0 ? item.rotation + 2 : item.rotation - 2 }}
+      whileHover={{ scale: 1.08, rotate: item.rotation > 0 ? item.rotation + 2 : item.rotation - 2 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
     >
+      {/* Realistic 3D Thumbtack */}
+      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 w-5 h-5 flex justify-center pointer-events-none">
+        {/* Angled Drop Shadow for the pin/head */}
+        <div className="absolute top-2 left-2 w-1.5 h-4 bg-black/40 blur-[1px] transform -rotate-12 origin-top-left rounded-full" />
+        
+        {/* The plastic head (3D red sphere) */}
+        <div className="absolute top-0 w-[18px] h-[18px] rounded-full bg-[radial-gradient(circle_at_30%_30%,#ff6b6b_0%,#dc2626_60%,#7f1d1d_100%)] shadow-[0_2px_4px_rgba(0,0,0,0.6)] flex items-center justify-center border border-[#7f1d1d]">
+          {/* Highlight / Reflection */}
+          <div className="absolute top-1 left-1 w-2 h-2 bg-white/60 rounded-full blur-[1px]" />
+          {/* Center mold dot */}
+          <div className="absolute w-[3px] h-[3px] bg-red-950/40 rounded-full" />
+        </div>
+      </div>
+
       {/* Journal Render */}
       {isJournal && (
-        <div className={`w-32 h-48 ${item.color || 'bg-[#2a2a2a]'} rounded-r-xl rounded-l-sm shadow-[10px_10px_20px_rgba(0,0,0,0.6)] relative overflow-hidden border-l-8 border-black/30 flex items-center justify-center`}>
-          <div className="absolute right-4 w-1 h-full bg-black/10" /> {/* Elastic band */}
-          <div className="text-white/40 flex flex-col items-center gap-2">
-            <item.icon size={24} />
-            <span className="font-mono text-[10px] tracking-widest uppercase">{item.category}</span>
+        <div className={`w-24 h-36 lg:w-28 lg:h-40 ${item.color || 'bg-[#fffdf8]'} rounded-sm shadow-md relative overflow-hidden border border-gray-300 flex flex-col items-center justify-center`}>
+          <div className="absolute top-0 w-full h-4 bg-red-600/10" />
+          <div className="text-gray-600 flex flex-col items-center gap-2 px-2 text-center mt-2">
+            <item.icon size={20} className="text-gray-400" />
+            <span className="font-serif text-xs font-bold leading-tight">{item.title}</span>
+            <span className="font-mono text-[7px] tracking-widest uppercase text-gray-400">{item.category}</span>
           </div>
         </div>
       )}
 
       {/* Blueprint Render */}
       {isBlueprint && (
-        <div className="w-56 h-40 bg-[#1c3f60] p-4 shadow-[8px_8px_15px_rgba(0,0,0,0.5)] border border-blue-400/30 flex flex-col justify-between"
+        <div className="w-40 h-28 lg:w-48 lg:h-32 bg-[#1c3f60] p-3 shadow-[8px_8px_15px_rgba(0,0,0,0.5)] border border-blue-400/30 flex flex-col justify-between"
              style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '10px 10px' }}
         >
           <div className="border-2 border-white/40 p-2 h-full flex flex-col">
-             <div className="flex justify-between items-start mb-2 border-b border-white/40 pb-2">
-               <span className="text-white font-mono text-[8px] tracking-widest">FIG 1.0</span>
-               <item.icon size={16} className="text-white/80" />
+             <div className="flex justify-between items-start mb-1 border-b border-white/40 pb-1">
+               <span className="text-white font-mono text-[7px] tracking-widest">FIG 1.0</span>
+               <item.icon size={14} className="text-white/80" />
              </div>
-             <div className="text-white/90 font-mono text-sm uppercase tracking-wider">{item.title}</div>
+             <div className="text-white/90 font-mono text-xs uppercase tracking-wider">{item.title}</div>
           </div>
         </div>
       )}
 
       {/* Letter Render */}
       {isLetter && (
-        <div className="w-48 h-64 bg-[#fdfaf6] shadow-[5px_5px_15px_rgba(0,0,0,0.4)] p-6 flex flex-col justify-between border border-[#e8e4db]"
+        <div className="w-36 h-48 lg:w-40 lg:h-52 bg-[#fdfaf6] shadow-[5px_5px_15px_rgba(0,0,0,0.4)] p-4 flex flex-col justify-between border border-[#e8e4db]"
              style={{ backgroundImage: 'linear-gradient(to bottom, #fdfaf6, #f4efe6)' }}>
           <div>
-            <div className="w-12 h-12 rounded-full border border-red-800/20 flex items-center justify-center mb-4">
-              <item.icon size={20} className="text-red-800/40" />
+            <div className="w-10 h-10 rounded-full border border-red-800/20 flex items-center justify-center mb-3">
+              <item.icon size={16} className="text-red-800/40" />
             </div>
-            <div className="font-serif text-lg text-gray-800 border-b border-gray-300 pb-2 mb-2">{item.title}</div>
-            <div className="w-full h-2 bg-gray-200 mb-2 rounded" />
-            <div className="w-3/4 h-2 bg-gray-200 rounded" />
+            <div className="font-serif text-sm text-gray-800 border-b border-gray-300 pb-1 mb-1">{item.title}</div>
+            <div className="w-full h-1.5 bg-gray-200 mb-1 rounded" />
+            <div className="w-3/4 h-1.5 bg-gray-200 rounded" />
           </div>
-          <div className="font-handwriting text-sm text-gray-500">{item.date}</div>
+          <div className="font-handwriting text-xs text-gray-500">{item.date}</div>
         </div>
       )}
 
       {/* Polaroid Render */}
       {isPolaroid && (
-        <div className="w-40 bg-white p-3 pb-8 shadow-[5px_5px_15px_rgba(0,0,0,0.5)] rounded-sm">
-          <div className="w-full aspect-square bg-gray-200 mb-2 overflow-hidden shadow-inner border border-black/5">
+        <div className="w-28 lg:w-32 bg-white p-2 pb-6 shadow-[5px_5px_15px_rgba(0,0,0,0.5)] rounded-sm">
+          <div className="w-full aspect-square bg-gray-200 mb-1 overflow-hidden shadow-inner border border-black/5">
             <img src={item.image} alt={item.title} className="w-full h-full object-cover filter contrast-125 saturate-50 sepia-[0.2]" />
           </div>
-          <div className="font-handwriting text-gray-800 text-center text-sm">{item.title}</div>
+          <div className="font-handwriting text-gray-800 text-center text-xs">{item.title}</div>
         </div>
       )}
 
       {/* Sticky Note Render */}
       {isSticky && (
-        <div className={`w-32 h-32 ${item.color} shadow-[2px_5px_10px_rgba(0,0,0,0.3)] p-4 flex flex-col justify-between`}
+        <div className={`w-24 h-24 lg:w-28 lg:h-28 ${item.color} shadow-[2px_5px_10px_rgba(0,0,0,0.3)] p-3 flex flex-col justify-between`}
              style={{ clipPath: 'polygon(0 0, 100% 0, 100% 90%, 90% 100%, 0 100%)' }}>
-          <div className="font-handwriting text-gray-800 text-lg leading-tight">{item.title}</div>
-          <item.icon size={16} className="text-black/30 self-end" />
+          <div className="font-handwriting text-gray-800 text-sm leading-tight">{item.title}</div>
+          <item.icon size={14} className="text-black/30 self-end" />
         </div>
       )}
     </motion.div>
@@ -362,7 +316,6 @@ function ExpandedItem({ item, onClose }) {
       {isJournal && (
         <div className="w-full max-w-[600px] h-auto md:h-[400px] bg-[#f4ebd8] flex flex-col md:flex-row shadow-2xl rounded-sm overflow-hidden"
              style={{ backgroundImage: 'linear-gradient(90deg, rgba(0,0,0,0.1) 0%, transparent 2%, transparent 98%, rgba(0,0,0,0.1) 100%), linear-gradient(0deg, #f4ebd8, #fffdf8)' }}>
-          {/* Left Page */}
           <div className="w-full md:w-1/2 h-48 md:h-full border-b md:border-b-0 md:border-r border-black/10 p-6 md:p-10 flex flex-col justify-center relative shadow-[inset_-10px_0_20px_rgba(0,0,0,0.05)]">
             <div className="w-16 h-16 rounded-full bg-black/5 flex items-center justify-center mb-6">
               <item.icon size={32} className="text-black/60" />
@@ -370,7 +323,6 @@ function ExpandedItem({ item, onClose }) {
             <h2 className="font-serif text-2xl md:text-3xl text-gray-900 mb-2">{item.title}</h2>
             <div className="font-mono text-sm text-gray-500 uppercase tracking-widest">{item.date}</div>
           </div>
-          {/* Right Page */}
           <div className="w-full md:w-1/2 h-auto md:h-full p-6 md:p-10 flex flex-col justify-center relative shadow-[inset_10px_0_20px_rgba(0,0,0,0.05)]">
              <p className="font-handwriting text-xl md:text-2xl text-gray-800 leading-relaxed">{item.desc}</p>
           </div>
@@ -385,11 +337,9 @@ function ExpandedItem({ item, onClose }) {
                <div className="font-mono text-white/80 tracking-widest">PROJECT: {item.title.toUpperCase()}</div>
                <div className="font-mono text-white/80 tracking-widest">DATE: {item.date}</div>
              </div>
-             
              <div className="flex-1 flex items-center justify-center mt-16">
                <item.icon size={120} className="text-white/20" strokeWidth={1} />
              </div>
-
              <div className="absolute bottom-0 right-0 p-6 border-t-4 border-l-4 border-white/30 max-w-sm bg-[#1c3f60]">
                 <p className="font-mono text-white/90 text-sm leading-relaxed">{item.desc}</p>
              </div>
@@ -448,4 +398,3 @@ function ExpandedItem({ item, onClose }) {
     </div>
   )
 }
-

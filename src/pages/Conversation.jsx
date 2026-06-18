@@ -110,9 +110,10 @@ export default function Conversation() {
                       rotateX: offsetIndex * 5
                     }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    style={{ touchAction: "pan-y" }}
                     drag={isFront ? "x" : false}
                     dragConstraints={{ left: 0, right: 0 }}
-                    dragElastic={1}
+                    dragElastic={0.8}
                     onDragEnd={(e, { offset, velocity }) => {
                       const swipe = Math.abs(offset.x) * velocity.x
                       if (swipe < -1000 || swipe > 1000 || offset.x > 100 || offset.x < -100) {
