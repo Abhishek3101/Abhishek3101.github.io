@@ -132,8 +132,7 @@ export default function Travel({ isPreview = false }) {
       setScatteredPhotos([])
     } else {
       setActiveFilter(code)
-      // We no longer have country codes mapped easily without a dict, so just showing all photos with photos array
-      setScatteredPhotos(places.filter(p => p.photos && p.photos.length > 0))
+      setScatteredPhotos(places.filter(p => p.country === code && p.photos && p.photos.length > 0))
     }
   }
 
@@ -488,7 +487,7 @@ export default function Travel({ isPreview = false }) {
                    <div className="absolute -bottom-4 right-4 w-12 h-6 bg-white/40 backdrop-blur-sm transform -rotate-6 shadow-sm border border-white/20 z-20"></div>
                    
                    {selectedPolaroid.photos && selectedPolaroid.photos.length > 0 ? (
-                     <img src={selectedPolaroid.photos[0]} className="w-full h-64 object-cover bg-gray-100" />
+                     <img src={selectedPolaroid.photos[0]} className="w-full h-auto max-h-[50vh] object-contain bg-gray-100" />
                    ) : (
                      <div className="w-full h-64 bg-[#e5dfd3] flex items-center justify-center border border-[#d4c19a] shadow-inner">
                        <span className="text-gray-400 font-handwriting text-2xl">No Photo</span>
