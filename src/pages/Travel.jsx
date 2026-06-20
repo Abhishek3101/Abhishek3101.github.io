@@ -65,6 +65,28 @@ export default function Travel({ isPreview = false }) {
   const [activeFilter, setActiveFilter] = useState(null)
   const [showPhotosOnMap, setShowPhotosOnMap] = useState(true)
   const [position, setPosition] = useState({ coordinates: [0, 0], zoom: 1 })
+  const [canScrollMore, setCanScrollMore] = useState(false)
+  const scrollContainerRef = useRef(null)
+
+  useEffect(() => {
+    if (!selectedPolaroid) return;
+    
+    const interval = setInterval(() => {
+      if (scrollContainerRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+        const isBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 10;
+        setCanScrollMore(scrollHeight > clientHeight && !isBottom);
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [selectedPolaroid]);
+
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    const isBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 10;
+    setCanScrollMore(scrollHeight > clientHeight && !isBottom);
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -275,7 +297,7 @@ export default function Travel({ isPreview = false }) {
                   </Geographies>
 
                   {/* Markers for Places in India View */}
-                  {places.map(place => {
+                  {[...places].sort((a,b) => (a.photos?.length ? 1 : 0) - (b.photos?.length ? 1 : 0)).map(place => {
                     const isIndia = place.country === 'India';
                     if (!isIndia) return null;
                     if (!place.coordinates || place.coordinates.length < 2) return null;
@@ -349,7 +371,7 @@ export default function Travel({ isPreview = false }) {
                   )}
 
                   {/* Markers for Places (Excluding India) */}
-                  {places.map(place => {
+                  {[...places].sort((a,b) => (a.photos?.length ? 1 : 0) - (b.photos?.length ? 1 : 0)).map(place => {
                     const isIndia = place.country === 'India';
                     if (isIndia) return null;
                     if (!place.coordinates || place.coordinates.length < 2) return null;
@@ -465,25 +487,57 @@ export default function Travel({ isPreview = false }) {
                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-16 h-6 bg-white/40 backdrop-blur-sm transform rotate-3 shadow-sm border border-white/20 z-20"></div>
                    <div className="absolute -bottom-4 right-4 w-12 h-6 bg-white/40 backdrop-blur-sm transform -rotate-6 shadow-sm border border-white/20 z-20"></div>
                    
-                   <img src={selectedPolaroid.fullImage} className="w-full h-64 object-cover bg-gray-100" />
+                   {selectedPolaroid.photos && selectedPolaroid.photos.length > 0 ? (
+                     <img src={selectedPolaroid.photos[0]} className="w-full h-64 object-cover bg-gray-100" />
+                   ) : (
+                     <div className="w-full h-64 bg-[#e5dfd3] flex items-center justify-center border border-[#d4c19a] shadow-inner">
+                       <span className="text-gray-400 font-handwriting text-2xl">No Photo</span>
+                     </div>
+                   )}
                    <div className="pt-4 pb-2 text-center">
-                      <p className="font-handwriting text-3xl text-gray-800">{selectedPolaroid.title}</p>
+                      <p className="font-handwriting text-3xl text-gray-800">{selectedPolaroid.title || selectedPolaroid.name}</p>
+                      {selectedPolaroid.dateVisited && (
+                        <p className="font-mono text-[10px] text-gray-500 uppercase tracking-widest mt-1">{selectedPolaroid.dateVisited}</p>
+                      )}
                    </div>
                 </div>
               </div>
 
               {/* Right Page (Journal) */}
-              <div className="w-full md:w-1/2 h-auto md:h-full p-6 md:p-12 pt-8 md:pt-16 flex flex-col relative overflow-y-auto custom-scrollbar">
+              <div 
+                ref={scrollContainerRef}
+                onScroll={handleScroll}
+                className="w-full md:w-1/2 h-auto md:h-full p-6 md:p-12 pt-8 md:pt-16 flex flex-col relative overflow-y-auto custom-scrollbar"
+              >
                  <div className="absolute inset-0 pointer-events-none opacity-5" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/old-wall.png')" }}></div>
                  {/* Paper lines */}
                  <div className="absolute inset-0 pointer-events-none opacity-10" style={{ backgroundImage: "repeating-linear-gradient(transparent, transparent 39px, #7092be 39px, #7092be 40px)", backgroundPositionY: "38px" }}></div>
                  
-                 <div className="relative z-10">
-                   <h2 className="text-4xl font-handwriting mb-8 text-[#2c3e50]">{selectedPolaroid.name || selectedPolaroid.title}</h2>
+                 <div className="relative z-10 pb-16">
+                   <h2 className="text-4xl font-handwriting mb-8 text-[#2c3e50]">
+                     {selectedPolaroid.name}
+                     {selectedPolaroid.description ? ` - ${selectedPolaroid.description}` : ''}
+                   </h2>
                    <div className="font-handwriting text-2xl leading-[40px] text-[#34495e] whitespace-pre-wrap">
                      <Typewriter text={selectedPolaroid.journalText || selectedPolaroid.content || "No journal entry yet."} speed={40} />
                    </div>
                  </div>
+
+                 {/* Sticky scroll instruction for long journals */}
+                 <AnimatePresence>
+                   {canScrollMore && (
+                     <motion.div 
+                       initial={{ opacity: 0, y: 10 }}
+                       animate={{ opacity: 1, y: 0 }}
+                       exit={{ opacity: 0, y: 10 }}
+                       className="sticky bottom-0 mt-auto left-0 right-0 py-4 bg-gradient-to-t from-[#f4ead5] via-[#f4ead5] to-transparent pointer-events-none flex justify-center z-20"
+                     >
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold bg-white/50 px-3 py-1 rounded-full backdrop-blur-sm border border-black/5 shadow-sm animate-pulse">
+                          ↓ Scroll to keep reading
+                        </span>
+                     </motion.div>
+                   )}
+                 </AnimatePresence>
               </div>
             </div>
           )}
