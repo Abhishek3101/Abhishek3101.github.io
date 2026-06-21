@@ -16,7 +16,7 @@ export default function Future() {
       const data = snap.docs.map(doc => {
         const d = doc.data();
         let height = 'h-64';
-        if (d.category === 'thought') height = 'h-72';
+        if (d.category === 'thought') height = 'h-80';
         if (d.category === 'vision') height = 'h-96';
         
         return {
@@ -157,8 +157,12 @@ function VisionItem({ item, onClick }) {
              style={{ clipPath: 'polygon(0 0, 100% 2%, 98% 100%, 2% 98%)' }}>
           <Quote size={24} className="text-gray-300 mb-4" />
           <h3 className="font-handwriting text-3xl text-gray-800 mb-4 leading-tight">{item.title}</h3>
-          <p className="font-handwriting text-xl text-gray-600 line-clamp-4 leading-relaxed">{item.desc}</p>
-          <div className="mt-auto font-mono text-xs text-gray-400">Jotted down in transit.</div>
+          <p className="font-handwriting text-2xl text-gray-600 leading-relaxed">
+            {(() => {
+              const text = item.desc || item.description || "";
+              return text.length > 110 ? text.substring(0, 110).trim() + "..." : text;
+            })()}
+          </p>
         </div>
       )}
 
@@ -237,8 +241,8 @@ function ExpandedItemModal({ item, onClose }) {
               {item.title}
             </h2>
             
-            <p className={`text-xl leading-relaxed text-gray-700 ${isThought ? 'font-handwriting' : 'font-serif'}`}>
-              {item.desc}
+            <p className={`leading-relaxed text-gray-700 ${isThought ? 'font-handwriting text-3xl' : 'font-serif text-xl'}`}>
+              {item.desc || item.description}
             </p>
 
             <div className="mt-12 pt-8 border-t border-gray-100 flex flex-wrap gap-2">
