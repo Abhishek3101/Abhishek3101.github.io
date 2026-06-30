@@ -54,6 +54,7 @@ function Typewriter({ text, speed = 40 }) {
 }
 
 export default function Travel({ isPreview = false }) {
+  const [isLoading, setIsLoading] = useState(true)
   const [places, setPlaces] = useState([])
   const [flights, setFlights] = useState([])
   const [airlines, setAirlines] = useState({})
@@ -90,8 +91,18 @@ export default function Travel({ isPreview = false }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const snap = await getDocs(collection(db, 'travel_logs'));
-      setPlaces(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      try {
+        const snap = await getDocs(collection(db, 'travel_logs'));
+        const placesData = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setPlaces(placesData);
+        
+        // Background prefetch first photos to fix SVG hover lag
+        placesData.forEach(p => {
+          if (p.photos && p.photos.length > 0) {
+            const img = new Image();
+            img.src = p.photos[0];
+          }
+        });
       
       const flightSnap = await getDocs(collection(db, 'travel_flights'));
       const flightList = flightSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -106,11 +117,16 @@ export default function Travel({ isPreview = false }) {
 
       const airSnap = await getDocs(collection(db, 'travel_airlines'));
       const airDict = {};
-      airSnap.docs.forEach(doc => {
-        const data = doc.data();
-        airDict[data.name.toLowerCase()] = data;
-      });
-      setAirlines(airDict);
+        airSnap.docs.forEach(doc => {
+          const data = doc.data();
+          airDict[data.name.toLowerCase()] = data;
+        });
+        setAirlines(airDict);
+      } catch (error) {
+        console.error("Error fetching travel data:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchData();
   }, [])
@@ -136,16 +152,111 @@ export default function Travel({ isPreview = false }) {
     }
   }
 
-  const handlePinClick = (polaroid) => {
-    setScatteredPhotos([polaroid])
-  }
-
   const handleMapClick = () => {
     // Click on empty map clears scatter
     if (scatteredPhotos.length > 0) {
       setScatteredPhotos([])
       setActiveFilter(null)
     }
+  }
+
+  const spiderfiedPlaces = useMemo(() => {
+    const grouped = {};
+    places.forEach(place => {
+      if (!place.coordinates || place.coordinates.length < 2) return;
+      const key = `${place.coordinates[0].toFixed(1)},${place.coordinates[1].toFixed(1)}`;
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(place);
+    });
+
+    const result = [];
+    Object.values(grouped).forEach(group => {
+      if (group.length === 1) {
+        result.push({ ...group[0], spiderOffset: [0, 0] });
+      } else {
+        group.forEach((p, i) => {
+          const angle = (i / group.length) * Math.PI * 2;
+          const radius = Math.max(25, group.length * 6); // original small radius
+          const offsetX = Math.cos(angle) * radius;
+          const offsetY = Math.sin(angle) * radius;
+          result.push({ ...p, spiderOffset: [offsetX, offsetY] });
+        });
+      }
+    });
+    return result;
+  }, [places]);
+
+  const renderMarker = (place) => {
+    let Icon = MapPin;
+    let bgColor = "bg-red-500";
+    
+    if (place.pinType === 'mountain') { Icon = Mountain; bgColor = "bg-blue-500"; }
+    else if (place.pinType === 'beach') { Icon = Palmtree; bgColor = "bg-yellow-500"; }
+    else if (place.pinType === 'temple') { Icon = Tent; bgColor = "bg-orange-600"; }
+    else if (place.pinType === 'forest') { Icon = Tent; bgColor = "bg-green-600"; }
+    else if (place.pinType === 'city') { Icon = Building2; bgColor = "bg-purple-500"; }
+
+    return (
+      <Marker key={place.id} coordinates={place.coordinates}>
+        <g transform={`translate(${place.spiderOffset?.[0] || 0}, ${place.spiderOffset?.[1] || 0})`}>
+          <CustomPin 
+            icon={Icon} 
+            bgColor={bgColor} 
+            place={place} 
+            showPhoto={showPhotosOnMap} 
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              if (place.photos && place.photos.length > 0) {
+                setSelectedPolaroid(place);
+              }
+            }} 
+          />
+        </g>
+      </Marker>
+    );
+  };
+
+  const sortPlacesForZIndex = (a, b) => {
+    const aHasPhoto = a.photos && a.photos.length > 0;
+    const bHasPhoto = b.photos && b.photos.length > 0;
+    
+    // 1. Places with photos come last (render on top)
+    if (aHasPhoto && !bHasPhoto) return 1;
+    if (!aHasPhoto && bHasPhoto) return -1;
+    
+    // 2. If both have photos, sort by date (newest last, so it renders on top)
+    if (aHasPhoto && bHasPhoto) {
+      const dateA = a.dateVisited ? new Date(a.dateVisited) : new Date(0);
+      const dateB = b.dateVisited ? new Date(b.dateVisited) : new Date(0);
+      return dateA - dateB;
+    }
+    
+    return 0;
+  };
+
+  const indiaMarkers = useMemo(() => {
+    return spiderfiedPlaces
+      .filter(p => p.country === 'India')
+      .sort(sortPlacesForZIndex)
+      .map(renderMarker);
+  }, [spiderfiedPlaces, showPhotosOnMap]);
+
+  const worldMarkers = useMemo(() => {
+    return spiderfiedPlaces
+      .filter(p => p.country !== 'India')
+      .sort(sortPlacesForZIndex)
+      .map(renderMarker);
+  }, [spiderfiedPlaces, showPhotosOnMap]);
+
+  if (isLoading) {
+    return (
+      <PageWrapper title="Movement & Travel" fullScreen={true}>
+        <div className="w-full h-full bg-[#fdfaf6] flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="w-16 h-16 border-4 border-[#e2cca4] border-t-[#8c5a45] rounded-full animate-spin shadow-lg"></div>
+          <p className="mt-6 font-handwriting text-2xl text-[#8c5a45] animate-pulse">Packing bags...</p>
+        </div>
+      </PageWrapper>
+    );
   }
 
   const MapContent = (
@@ -156,7 +267,9 @@ export default function Travel({ isPreview = false }) {
         <div className="relative flex-grow md:flex-grow-0 md:h-full min-h-[60vh] overflow-hidden" onClick={handleMapClick}>
 
           {/* Consolidated Map Controls */}
-          <div className="absolute top-3 md:top-6 left-1/2 -translate-x-1/2 z-50 flex flex-col md:flex-row items-center gap-2 md:gap-6 bg-white/80 backdrop-blur-md px-3 md:px-6 py-2 md:py-3 rounded-xl md:rounded-full shadow-lg border border-[#e5dfd3] max-w-[92vw]" onClick={e => e.stopPropagation()}>
+          <div className="absolute top-3 md:top-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 max-w-[95vw] pointer-events-none">
+            
+            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6 bg-white/80 backdrop-blur-md px-3 md:px-6 py-2 md:py-3 rounded-xl md:rounded-full shadow-lg border border-[#e5dfd3] pointer-events-auto w-full md:w-auto justify-center" onClick={e => e.stopPropagation()}>
             
             {/* Top row: map toggle + photo toggle */}
             <div className="flex items-center gap-2 md:gap-6">
@@ -184,6 +297,13 @@ export default function Travel({ isPreview = false }) {
               >
                 <ImageIcon size={16} strokeWidth={2.5} />
               </button>
+
+              <div className="w-px h-5 bg-gray-300"></div>
+              
+              <div className="flex items-center gap-1 md:gap-2 bg-[#f4ebdc] px-2 md:px-3 py-1 md:py-1.5 rounded-full border border-[#d4c5ab] shadow-sm">
+                <span className="text-[9px] md:text-[10px] font-bold text-[#8c5a45] uppercase tracking-wider">Footprints</span>
+                <span className="text-xs md:text-sm font-black text-[#5c3a21]">{places.length}</span>
+              </div>
             </div>
 
             {/* Flags row — wraps on mobile */}
@@ -212,6 +332,14 @@ export default function Travel({ isPreview = false }) {
                 </div>
               </>
             )}
+            </div>
+
+            {/* Guiding Text */}
+            <div className="bg-[#fdfaf6]/90 backdrop-blur-sm px-5 py-2 rounded-full border border-[#e2cca4] shadow-sm pointer-events-auto text-center hidden md:block mt-1">
+               <p className="text-[11px] md:text-xs font-sans text-[#8c5a45] leading-relaxed">
+                 Every pin holds a story. Where chapters overlap, unfurl the flag to explore the memories hidden beneath. <span className="hidden md:inline px-1">|</span><br className="md:hidden"/> Tap any polaroid to step inside the journal.
+               </p>
+            </div>
           </div>
 
           {/* Left Panel: Ticket Roll */}
@@ -252,7 +380,7 @@ export default function Travel({ isPreview = false }) {
               projection={mapView === 'india' ? "geoMercator" : "geoEqualEarth"}
               projectionConfig={
                 mapView === 'india' 
-                  ? { scale: 1100, center: [80, 22] } 
+                  ? { scale: 1100, center: [80, 24.5] } 
                   : { scale: 220, center: [10, 0] }
               }
               width={1200}
@@ -265,6 +393,8 @@ export default function Travel({ isPreview = false }) {
                   center={position.coordinates} 
                   onMoveEnd={setPosition}
                   translateExtent={[[ -400, -400 ], [ 1600, 1200 ]]}
+                  disableZooming={true}
+                  disablePanning={true}
                 >
                   <Geographies geography={indiaGeoUrl}>
                     {({ geographies }) =>
@@ -296,37 +426,7 @@ export default function Travel({ isPreview = false }) {
                   </Geographies>
 
                   {/* Markers for Places in India View */}
-                  {[...places].sort((a,b) => (a.photos?.length ? 1 : 0) - (b.photos?.length ? 1 : 0)).map(place => {
-                    const isIndia = place.country === 'India';
-                    if (!isIndia) return null;
-                    if (!place.coordinates || place.coordinates.length < 2) return null;
-
-                    let Icon = MapPin;
-                    let bgColor = "bg-red-500";
-                    
-                    if (place.pinType === 'mountain') { Icon = Mountain; bgColor = "bg-blue-500"; }
-                    else if (place.pinType === 'beach') { Icon = Palmtree; bgColor = "bg-yellow-500"; }
-                    else if (place.pinType === 'temple') { Icon = Tent; bgColor = "bg-orange-600"; }
-                    else if (place.pinType === 'forest') { Icon = Tent; bgColor = "bg-green-600"; }
-                    else if (place.pinType === 'city') { Icon = Building2; bgColor = "bg-purple-500"; }
-
-                    return (
-                      <Marker key={place.id} coordinates={place.coordinates}>
-                        <CustomPin 
-                          icon={Icon} 
-                          bgColor={bgColor} 
-                          place={place} 
-                          showPhoto={showPhotosOnMap} 
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            if (place.photos && place.photos.length > 0) {
-                              handlePinClick(place);
-                            }
-                          }} 
-                        />
-                      </Marker>
-                    )
-                  })}
+                  {indiaMarkers}
                 </ZoomableGroup>
               ) : (
                 <ZoomableGroup 
@@ -334,6 +434,8 @@ export default function Travel({ isPreview = false }) {
                   center={position.coordinates} 
                   onMoveEnd={setPosition}
                   translateExtent={[[ -400, -400 ], [ 1600, 1200 ]]}
+                  disableZooming={true}
+                  disablePanning={true}
                 >
                   <Geographies geography={worldGeoUrl}>
                     {({ geographies }) =>
@@ -370,57 +472,11 @@ export default function Travel({ isPreview = false }) {
                   )}
 
                   {/* Markers for Places (Excluding India) */}
-                  {[...places].sort((a,b) => (a.photos?.length ? 1 : 0) - (b.photos?.length ? 1 : 0)).map(place => {
-                    const isIndia = place.country === 'India';
-                    if (isIndia) return null;
-                    if (!place.coordinates || place.coordinates.length < 2) return null;
-
-                    let Icon = MapPin;
-                    let bgColor = "bg-red-500";
-                    
-                    if (place.pinType === 'mountain') { Icon = Mountain; bgColor = "bg-blue-500"; }
-                    else if (place.pinType === 'beach') { Icon = Palmtree; bgColor = "bg-yellow-500"; }
-                    else if (place.pinType === 'temple') { Icon = Tent; bgColor = "bg-orange-600"; }
-                    else if (place.pinType === 'forest') { Icon = Tent; bgColor = "bg-green-600"; }
-                    else if (place.pinType === 'city') { Icon = Building2; bgColor = "bg-purple-500"; }
-
-                    return (
-                      <Marker key={place.id} coordinates={place.coordinates}>
-                        <CustomPin 
-                          icon={Icon} 
-                          bgColor={bgColor} 
-                          place={place} 
-                          showPhoto={showPhotosOnMap} 
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            if (place.photos && place.photos.length > 0) {
-                              handlePinClick(place);
-                            }
-                          }} 
-                        />
-                      </Marker>
-                    )
-                  })}
+                  {worldMarkers}
                 </ZoomableGroup>
               )}
 
             </ComposableMap>
-            
-            {/* Zoom Controls */}
-            <div className="absolute bottom-10 right-10 flex flex-col gap-2 z-50">
-              <button 
-                onClick={(e) => { e.stopPropagation(); setPosition(pos => ({ ...pos, zoom: Math.min(pos.zoom * 1.5, 4) })) }} 
-                className="bg-white p-2 rounded-lg shadow-md border border-gray-200 hover:bg-gray-50 text-gray-700"
-              >
-                <Plus size={20} />
-              </button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); setPosition(pos => ({ ...pos, zoom: Math.max(pos.zoom / 1.5, 1) })) }} 
-                className="bg-white p-2 rounded-lg shadow-md border border-gray-200 hover:bg-gray-50 text-gray-700"
-              >
-                <Minus size={20} />
-              </button>
-            </div>
           </div>
 
           {/* Scatter Layer */}
@@ -654,37 +710,33 @@ function BoardingPassRoll({ flights = [], airlines = {}, isMobileLayout = false 
 function ScatterLayer({ photos, onPhotoClick }) {
   if (photos.length === 0) return null;
 
+  const sortedPhotos = [...photos].sort((a, b) => {
+    if (!a.dateVisited) return -1;
+    if (!b.dateVisited) return 1;
+    return new Date(b.dateVisited) - new Date(a.dateVisited);
+  });
+
   return (
-    <div className="absolute inset-0 z-[60] pointer-events-none flex items-center justify-center">
-      {/* Dimmer backdrop */}
-      <motion.div 
-        initial={{ opacity: 0 }} 
-        animate={{ opacity: 1 }} 
-        exit={{ opacity: 0 }} 
-        className="absolute inset-0 bg-white/40 backdrop-blur-[2px]" 
-      />
-      
-      <AnimatePresence>
-        {photos.map((p, i) => {
-          // Pre-calculate scattered positioning
-          const rotation = (i % 2 === 0 ? 1 : -1) * (3 + (i * 7) % 20);
-          const offsetX = (i % 3 - 1) * 120 + ((i*10)%40);
-          const offsetY = (i % 2 === 0 ? 1 : -1) * 60 + (i * 20);
-          
-          return (
-            <motion.div
-              key={p.id}
-              initial={{ y: "100vh", x: "20vw", opacity: 0, rotate: -45, scale: 0.5 }}
-              animate={{ y: offsetY, x: offsetX, opacity: 1, rotate: rotation, scale: 1 }}
-              exit={{ y: "100vh", opacity: 0, scale: 0.5 }}
-              transition={{ type: "spring", stiffness: 60, damping: 12, delay: i * 0.1 }}
-              className="absolute pointer-events-auto shadow-2xl"
-            >
-               <Polaroid {...p} onClick={() => onPhotoClick(p)} />
-            </motion.div>
-          )
-        })}
-      </AnimatePresence>
+    <div className="absolute inset-0 z-[60] pointer-events-auto bg-[#fdfaf6]/50 backdrop-blur-sm overflow-y-auto hide-scrollbar pt-32 pb-20 px-2 md:px-6">
+      <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6 w-full mx-auto">
+        <AnimatePresence>
+          {sortedPhotos.map((p, i) => {
+            const rotation = (i % 2 === 0 ? 1 : -1) * (1 + (i * 7) % 6);
+            return (
+              <motion.div
+                key={p.id}
+                initial={{ y: 50, opacity: 0, scale: 0.8 }}
+                animate={{ y: 0, opacity: 1, rotate: rotation, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.5 }}
+                transition={{ type: "spring", stiffness: 100, damping: 15, delay: (i % 15) * 0.05 }}
+                className="shadow-xl hover:shadow-2xl hover:z-10 transition-shadow duration-300"
+              >
+                 <Polaroid {...p} onClick={() => onPhotoClick(p)} />
+              </motion.div>
+            )
+          })}
+        </AnimatePresence>
+      </div>
     </div>
   )
 }
@@ -696,7 +748,7 @@ function Polaroid({ imageUrl, photos, title, name, type, onClick }) {
       className={`w-48 bg-white p-3 pb-6 shadow-[0_10px_30px_rgba(0,0,0,0.2)] cursor-pointer hover:scale-105 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:z-[70] transition-all duration-300 relative group`}
     >
       <div className={`w-full h-40 bg-gray-200 overflow-hidden shadow-inner`}>
-        <img src={imageUrl || (photos && photos[0])} alt={title || name} className={`w-full h-full object-cover grayscale-[10%] group-hover:grayscale-0 transition-all`} draggable="false" />
+        <img src={imageUrl || (photos && photos[0])} alt={title || name} loading="lazy" decoding="async" className={`w-full h-full object-cover grayscale-[10%] group-hover:grayscale-0 transition-all`} draggable="false" />
       </div>
       <div className="mt-3 text-center">
         <h4 className="font-handwriting text-2xl text-[#5d4a3a] leading-none">{title || name}</h4>
@@ -707,9 +759,13 @@ function Polaroid({ imageUrl, photos, title, name, type, onClick }) {
 
 function CustomPin({ icon: Icon, bgColor = "bg-[#9c6b53]", place, showPhoto = true, onClick }) {
   const hasPhoto = place && place.photos && place.photos.length > 0;
+  const [imgLoaded, setImgLoaded] = React.useState(!hasPhoto);
   
   return (
-    <g className="cursor-pointer" onClick={onClick}>
+    <g 
+      className={`cursor-pointer ${!imgLoaded ? 'pointer-events-none' : ''}`} 
+      onClick={onClick}
+    >
       {/* Set bounding box such that bottom-center is exactly at the geographic (0,0) */}
       <foreignObject x="-50" y="-150" width="100" height="150" className="overflow-visible pointer-events-none">
         
@@ -718,11 +774,22 @@ function CustomPin({ icon: Icon, bgColor = "bg-[#9c6b53]", place, showPhoto = tr
           
           {/* Permanent/Hover Mini Polaroid */}
           {place && (
-            <div className={`absolute bottom-6 z-20 transform rotate-3 transition-all origin-bottom duration-300 hover:scale-125 ${showPhoto ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto'}`}>
+            <div 
+              className={`absolute bottom-6 z-20 transform rotate-3 transition-transform duration-200 hover:scale-110 ${showPhoto ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto'}`}
+              style={{ willChange: 'transform, opacity' }}
+            >
                <div className="bg-[#fffdfa] p-1 pb-2 shadow-[0_4px_10px_rgba(0,0,0,0.3)] rounded-sm min-w-[3.5rem] flex flex-col items-center justify-center border border-[#e2cca4]">
                   {hasPhoto && (
-                    <div className="w-12 h-10 bg-[#e5dfd3] overflow-hidden shadow-inner mb-1">
-                      <img src={place.photos[0]} className="w-full h-full object-cover" />
+                    <div className="w-12 h-10 bg-[#e5dfd3] overflow-hidden shadow-inner mb-1 relative">
+                      {!imgLoaded && <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>}
+                      <img 
+                        src={place.photos[0]} 
+                        loading="lazy" 
+                        decoding="async" 
+                        onLoad={() => setImgLoaded(true)}
+                        className={`w-full h-full object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`} 
+                        style={{ willChange: 'opacity' }}
+                      />
                     </div>
                   )}
                   <span className="text-[7px] leading-tight font-handwriting text-[#5d4a3a] text-center tracking-tight px-1 max-w-[80px] whitespace-nowrap overflow-hidden text-ellipsis">{place.name}</span>
