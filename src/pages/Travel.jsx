@@ -5,7 +5,9 @@ import {
   Geographies,
   Geography,
   Marker,
-  ZoomableGroup
+  ZoomableGroup,
+  Line,
+  useMapContext
 } from "react-simple-maps"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Mountain, MapPin, Plane, Award, Bookmark, Tent, Building2, Car, Palmtree, Bike, ChevronDown, Image as ImageIcon } from 'lucide-react'
@@ -31,10 +33,36 @@ const COUNTRY_FLAGS = {
   'UAE': '🇦🇪',
   'Singapore': '🇸🇬',
   'Malaysia': '🇲🇾',
-  'Indonesia': '🇮🇩'
+  'Indonesia': '🇮🇩',
+  'Australia': '🇺🇦'
 }
 
-
+const AIRPORT_COORDS = {
+  'kolkata': [88.4467, 22.6547], 'ccu': [88.4467, 22.6547],
+  'delhi': [77.1025, 28.5562], 'del': [77.1025, 28.5562],
+  'mumbai': [72.8656, 19.0896], 'bom': [72.8656, 19.0896],
+  'bangalore': [77.7066, 13.1986], 'blr': [77.7066, 13.1986], 'bengaluru': [77.7066, 13.1986],
+  'chennai': [80.1709, 12.9941], 'maa': [80.1709, 12.9941],
+  'hyderabad': [78.4294, 17.2403], 'hyd': [78.4294, 17.2403],
+  'pune': [73.9197, 18.5822], 'pnq': [73.9197, 18.5822],
+  'goa': [73.8313, 15.3803], 'goi': [73.8313, 15.3803],
+  'bhubaneswar': [85.8178, 20.2444], 'bbi': [85.8178, 20.2444],
+  'guwahati': [91.5859, 26.1061], 'gau': [91.5859, 26.1061],
+  'bagdogra': [88.3286, 26.6812], 'ixb': [88.3286, 26.6812], 'siliguri': [88.3286, 26.6812],
+  'ahmedabad': [72.6347, 23.0772], 'amd': [72.6347, 23.0772],
+  'jaipur': [75.8070, 26.8242], 'jai': [75.8070, 26.8242],
+  'kochi': [76.4019, 10.1518], 'cok': [76.4019, 10.1518], 'cochin': [76.4019, 10.1518],
+  'trivandrum': [76.9200, 8.4821], 'trv': [76.9200, 8.4821],
+  'varanasi': [82.8596, 25.4516], 'vns': [82.8596, 25.4516],
+  'raipur': [81.7388, 21.1803], 'rpr': [81.7388, 21.1803],
+  'srinagar': [74.7743, 33.9785], 'sxr': [74.7743, 33.9785],
+  'leh': [77.5465, 34.1359], 'ixl': [77.5465, 34.1359],
+  'vietnam': [106.6297, 10.8231], 'sgn': [106.6297, 10.8231],
+  'hanoi': [105.8048, 21.2187], 'han': [105.8048, 21.2187],
+  'da nang': [108.1993, 16.0439], 'dad': [108.1993, 16.0439],
+  'bangkok': [100.7501, 13.6900], 'bkk': [100.7501, 13.6900],
+  'phuket': [98.3169, 11.1121], 'hkt': [98.3169, 11.1121]
+}
 
 function Typewriter({ text, speed = 40 }) {
   const [displayedText, setDisplayedText] = useState('')
@@ -53,10 +81,86 @@ function Typewriter({ text, speed = 40 }) {
   return <span>{displayedText}</span>
 }
 
+function FlightLinesLayer({ flights }) {
+  const { projection } = useMapContext();
+  
+  if (!flights || flights.length === 0 || !projection) return null;
+
+  return (
+    <>
+      {flights.map((flight, i) => {
+        const fromStr = flight.from?.toLowerCase().trim();
+        const toStr = flight.to?.toLowerCase().trim();
+        
+        const fromCoords = flight.fromCoords || AIRPORT_COORDS[fromStr];
+        const toCoords = flight.toCoords || AIRPORT_COORDS[toStr];
+        
+        if (!fromCoords || !toCoords) return null;
+
+        const [x1, y1] = projection(fromCoords);
+        const [x2, y2] = projection(toCoords);
+        
+        // Calculate distance and midpoint
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const mx = (x1 + x2) / 2;
+        const my = (y1 + y2) / 2;
+        
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        // Arc offset: ~25% of the distance. 
+        // We flip the normal depending on direction so the arc always bends "upwards" relative to the globe.
+        const offset = dist * 0.25;
+        const nx = -dy / dist;
+        const ny = dx / dist;
+        
+        const cx = mx + nx * offset;
+        const cy = my + ny * offset;
+
+        const pathData = `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`;
+
+        return (
+          <g key={`flight-line-${flight.id}-${i}`}>
+            {/* Base solid line */}
+            <path
+              d={pathData}
+              fill="none"
+              stroke="#8c5a45" // Vintage brown
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              className="pointer-events-none opacity-40"
+            />
+            {/* Traveling dash (integrated "dot") */}
+            <path
+              d={pathData}
+              fill="none"
+              stroke="#d97706" // Warm amber/gold to match vibe
+              strokeWidth={2}
+              strokeLinecap="round"
+              pathLength="100"
+              strokeDasharray="4 96" // 4% dash, 96% gap
+              className="pointer-events-none drop-shadow-[0_0_3px_rgba(217,119,6,0.6)]"
+            >
+              <animate 
+                attributeName="stroke-dashoffset" 
+                from="100" 
+                to="0" 
+                dur={`${4 + (i % 4)}s`} 
+                repeatCount="indefinite" 
+              />
+            </path>
+          </g>
+        )
+      })}
+    </>
+  )
+}
+
 export default function Travel({ isPreview = false }) {
   const [isLoading, setIsLoading] = useState(true)
   const [places, setPlaces] = useState([])
   const [flights, setFlights] = useState([])
+  const [isFlightLogOpen, setIsFlightLogOpen] = useState(false)
   const [airlines, setAirlines] = useState({})
   const [learnings, setLearnings] = useState([])
   const [wishlist, setWishlist] = useState([])
@@ -68,6 +172,11 @@ export default function Travel({ isPreview = false }) {
   const [position, setPosition] = useState({ coordinates: [0, 0], zoom: 1 })
   const [canScrollMore, setCanScrollMore] = useState(false)
   const scrollContainerRef = useRef(null)
+
+  useEffect(() => {
+    // Hide polaroids when flight log is open, bring them back when closed
+    setShowPhotosOnMap(!isFlightLogOpen);
+  }, [isFlightLogOpen]);
 
   useEffect(() => {
     if (!selectedPolaroid) return;
@@ -96,7 +205,6 @@ export default function Travel({ isPreview = false }) {
         const placesData = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setPlaces(placesData);
         
-        // Background prefetch first photos to fix SVG hover lag
         placesData.forEach(p => {
           if (p.photos && p.photos.length > 0) {
             const img = new Image();
@@ -142,7 +250,6 @@ export default function Travel({ isPreview = false }) {
   }));
 
   const handleFilter = (code) => {
-    // Legacy filter placeholder, can be hooked to actual filters
     if (activeFilter === code) {
       setActiveFilter(null)
       setScatteredPhotos([])
@@ -153,7 +260,6 @@ export default function Travel({ isPreview = false }) {
   }
 
   const handleMapClick = () => {
-    // Click on empty map clears scatter
     if (scatteredPhotos.length > 0) {
       setScatteredPhotos([])
       setActiveFilter(null)
@@ -176,7 +282,7 @@ export default function Travel({ isPreview = false }) {
       } else {
         group.forEach((p, i) => {
           const angle = (i / group.length) * Math.PI * 2;
-          const radius = Math.max(25, group.length * 6); // original small radius
+          const radius = Math.max(25, group.length * 6);
           const offsetX = Math.cos(angle) * radius;
           const offsetY = Math.sin(angle) * radius;
           result.push({ ...p, spiderOffset: [offsetX, offsetY] });
@@ -220,11 +326,9 @@ export default function Travel({ isPreview = false }) {
     const aHasPhoto = a.photos && a.photos.length > 0;
     const bHasPhoto = b.photos && b.photos.length > 0;
     
-    // 1. Places with photos come last (render on top)
     if (aHasPhoto && !bHasPhoto) return 1;
     if (!aHasPhoto && bHasPhoto) return -1;
     
-    // 2. If both have photos, sort by date (newest last, so it renders on top)
     if (aHasPhoto && bHasPhoto) {
       const dateA = a.dateVisited ? new Date(a.dateVisited) : new Date(0);
       const dateB = b.dateVisited ? new Date(b.dateVisited) : new Date(0);
@@ -263,15 +367,12 @@ export default function Travel({ isPreview = false }) {
     <>
     <div className={`relative w-full ${isPreview ? 'h-full rounded-xl' : 'h-full md:min-h-0'} bg-[#fdfaf6] flex flex-col md:overflow-hidden overflow-y-auto`}>
       
-      {/* Main Map Area */}
         <div className="relative flex-grow md:flex-grow-0 md:h-full min-h-[60vh] overflow-hidden" onClick={handleMapClick}>
 
-          {/* Consolidated Map Controls */}
           <div className="absolute top-3 md:top-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 max-w-[95vw] pointer-events-none">
             
             <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6 bg-white/80 backdrop-blur-md px-3 md:px-6 py-2 md:py-3 rounded-xl md:rounded-full shadow-lg border border-[#e5dfd3] pointer-events-auto w-full md:w-auto justify-center" onClick={e => e.stopPropagation()}>
             
-            {/* Top row: map toggle + photo toggle */}
             <div className="flex items-center gap-2 md:gap-6">
               <div className="flex bg-gray-100 rounded-full p-0.5 md:p-1 border border-gray-200">
                 <button 
@@ -306,7 +407,6 @@ export default function Travel({ isPreview = false }) {
               </div>
             </div>
 
-            {/* Flags row — wraps on mobile */}
             {activeFlags.length > 0 && (
               <>
                 <div className="hidden md:block w-px h-6 bg-gray-300"></div>
@@ -334,7 +434,6 @@ export default function Travel({ isPreview = false }) {
             )}
             </div>
 
-            {/* Guiding Text */}
             <div className="bg-[#fdfaf6]/90 backdrop-blur-sm px-5 py-2 rounded-full border border-[#e2cca4] shadow-sm pointer-events-auto text-center hidden md:block mt-1">
                <p className="text-[11px] md:text-xs font-sans text-[#8c5a45] leading-relaxed">
                  Every pin holds a story. Where chapters overlap, unfurl the flag to explore the memories hidden beneath. <span className="hidden md:inline px-1">|</span><br className="md:hidden"/> Tap any polaroid to step inside the journal.
@@ -342,12 +441,15 @@ export default function Travel({ isPreview = false }) {
             </div>
           </div>
 
-          {/* Left Panel: Ticket Roll */}
           <div className="hidden md:block absolute top-24 left-8 z-40 w-64" onClick={e => e.stopPropagation()}>
-            <BoardingPassRoll flights={flights} airlines={airlines} />
+            <BoardingPassRoll 
+              flights={flights} 
+              airlines={airlines} 
+              isRolledOut={isFlightLogOpen}
+              setIsRolledOut={setIsFlightLogOpen}
+            />
           </div>
 
-          {/* Right Panel: Learnings & Wishes */}
           <div className="hidden md:flex absolute top-24 right-8 z-30 flex-col gap-8 w-64 items-end pointer-events-none">
             {learnings.length > 0 && (
               <div className="bg-yellow-100 p-5 shadow-md w-full pointer-events-auto transform rotate-2 relative rounded-sm">
@@ -373,7 +475,6 @@ export default function Travel({ isPreview = false }) {
             )}
           </div>
 
-          {/* The Base Map */}
           <div className="absolute inset-0 z-0 flex items-center justify-center pt-10">
             <ComposableMap
               key={mapView}
@@ -393,8 +494,6 @@ export default function Travel({ isPreview = false }) {
                   center={position.coordinates} 
                   onMoveEnd={setPosition}
                   translateExtent={[[ -400, -400 ], [ 1600, 1200 ]]}
-                  disableZooming={true}
-                  disablePanning={true}
                 >
                   <Geographies geography={indiaGeoUrl}>
                     {({ geographies }) =>
@@ -425,8 +524,9 @@ export default function Travel({ isPreview = false }) {
                     }
                   </Geographies>
 
-                  {/* Markers for Places in India View */}
                   {indiaMarkers}
+                  
+                  {isFlightLogOpen && <FlightLinesLayer flights={flights} />}
                 </ZoomableGroup>
               ) : (
                 <ZoomableGroup 
@@ -434,8 +534,6 @@ export default function Travel({ isPreview = false }) {
                   center={position.coordinates} 
                   onMoveEnd={setPosition}
                   translateExtent={[[ -400, -400 ], [ 1600, 1200 ]]}
-                  disableZooming={true}
-                  disablePanning={true}
                 >
                   <Geographies geography={worldGeoUrl}>
                     {({ geographies }) =>
@@ -461,7 +559,6 @@ export default function Travel({ isPreview = false }) {
                     }
                   </Geographies>
 
-                  {/* World View Clustering for India (Delhi Coordinates) */}
                   {indiaPlaces.length > 0 && (
                     <Marker coordinates={[77.2090, 28.6139]}>
                       <ClusterPin 
@@ -471,25 +568,30 @@ export default function Travel({ isPreview = false }) {
                     </Marker>
                   )}
 
-                  {/* Markers for Places (Excluding India) */}
                   {worldMarkers}
+                  
+                  {isFlightLogOpen && <FlightLinesLayer flights={flights} />}
                 </ZoomableGroup>
               )}
 
             </ComposableMap>
           </div>
 
-          {/* Scatter Layer */}
           <ScatterLayer photos={scatteredPhotos} onPhotoClick={setSelectedPolaroid} />
 
         </div>
 
-        {/* Mobile Panels — shown below map on small screens */}
         <div className="md:hidden flex flex-col gap-8 p-4 pt-10 flex-shrink-0 bg-[#fdfaf6] relative z-20">
           {flights.length > 0 && (
             <div className="flex justify-center w-full min-h-[350px]">
-              <div className="w-[85%] max-w-[320px] relative">
-                <BoardingPassRoll flights={flights} airlines={airlines} isMobileLayout={true} />
+              <div className="md:hidden mt-4" onClick={e => e.stopPropagation()}>
+                <BoardingPassRoll 
+                  flights={flights} 
+                  airlines={airlines} 
+                  isMobileLayout={true} 
+                  isRolledOut={isFlightLogOpen}
+                  setIsRolledOut={setIsFlightLogOpen}
+                />
               </div>
             </div>
           )}
@@ -610,9 +712,34 @@ export default function Travel({ isPreview = false }) {
   )
 }
 
-function BoardingPassRoll({ flights = [], airlines = {}, isMobileLayout = false }) {
-  const [isRolledOut, setIsRolledOut] = useState(false)
+function FlightTicket({ pass, airlines }) {
+  return (
+    <>
+      <div 
+        className="w-full py-1 px-3 flex justify-between items-center"
+        style={{
+          backgroundColor: airlines[pass.airline?.toLowerCase()]?.color || '#475569',
+          color: airlines[pass.airline?.toLowerCase()]?.textColor || '#ffffff'
+        }}
+      >
+         <span className="text-[10px] font-black tracking-widest">{pass.flightNumber}</span>
+         <span className="text-[9px] font-bold uppercase opacity-80">{pass.airline}</span>
+      </div>
+      
+      <div className="p-3">
+        <div className="flex justify-between items-center mb-1">
+          <h4 className="font-sans font-bold text-lg uppercase tracking-wider">{pass.from} ✈ {pass.to}</h4>
+        </div>
+        <p className="text-[10px] text-gray-500 font-mono">{pass.date}</p>
+      </div>
+      
+      <div className="absolute top-1/2 -left-2 w-4 h-4 bg-[#fdfaf6] rounded-full -translate-y-1/2 shadow-inner"></div>
+      <div className="absolute top-1/2 -right-2 w-4 h-4 bg-[#fdfaf6] rounded-full -translate-y-1/2 shadow-inner"></div>
+    </>
+  )
+}
 
+function BoardingPassRoll({ flights = [], airlines = {}, isMobileLayout = false, isRolledOut, setIsRolledOut }) {
   const airlineCounts = flights.reduce((acc, pass) => {
     acc[pass.airline] = (acc[pass.airline] || 0) + 1
     return acc
@@ -640,68 +767,54 @@ function BoardingPassRoll({ flights = [], airlines = {}, isMobileLayout = false 
           ))}
         </div>
         
-        <div className="mt-4 text-gray-300">
-          <ChevronDown size={20} className={`transform transition-transform duration-500 ${isRolledOut ? 'rotate-180' : ''}`} />
+        <div className="mt-3 flex flex-col items-center relative min-h-[40px] justify-end w-full">
+          <span className={`absolute top-0 text-center text-[9px] uppercase tracking-[0.2em] font-bold font-sans text-[#9c6b53] transition-all duration-500 w-full ${isRolledOut ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
+            Scroll the miles <br/> as the map traces the skies
+          </span>
+          <ChevronDown size={20} className={`text-gray-300 transform transition-transform duration-500 relative z-10 ${isRolledOut ? 'rotate-180 mt-6' : ''}`} />
         </div>
       </div>
 
       {/* The Roll Container */}
-      <div className={`${isMobileLayout ? 'relative' : 'absolute'} top-[100%] left-0 w-full z-10 flex flex-col items-center pb-8`}>
-        <AnimatePresence initial={false}>
-          {flights.map((pass, index) => {
-            const isFirst = index === 0;
-            // When closed, only the first ticket renders and it peeks out.
-            if (!isRolledOut && !isFirst) return null;
-
-            return (
-              <motion.div
+      <div className={`w-full z-10 flex flex-col items-center transition-all duration-300 ${isRolledOut ? 'mt-4 max-h-[85vh] overflow-y-auto custom-scrollbar pb-8' : 'mt-[-10px]'}`}>
+        
+        {/* Furled State (Closed) */}
+        {!isRolledOut && (
+          <div className="relative w-full h-[40px] overflow-visible">
+            {flights.slice(0, 3).map((pass, index) => (
+              <div
                 key={pass.id}
-                layout={isMobileLayout}
-                initial={{ opacity: 0, y: -50, rotateX: 90 }}
-                animate={{ 
-                  opacity: 1, 
-                  y: isRolledOut ? 0 : -35, // When rolled in, slide it up mostly behind the header
-                  rotateX: isRolledOut ? 0 : 5,
-                  scale: isRolledOut ? 1 : 0.95
+                className="absolute top-0 left-0 right-0 mx-auto w-[95%] bg-white shadow-lg border-b border-dashed border-gray-300 overflow-hidden cursor-pointer hover:!-translate-y-6 transition-all duration-300"
+                style={{
+                  zIndex: 20 - index,
+                  transform: `translateY(${index * 12}px) scale(${1 - index * 0.05})`
                 }}
-                exit={{ opacity: 0, y: -50, rotateX: 90 }}
-                transition={{ 
-                  duration: 0.5, 
-                  delay: isRolledOut ? index * 0.1 : 0, 
-                  type: "spring", 
-                  stiffness: 100, 
-                  damping: 15 
-                }}
-                className={`w-[95%] bg-white shadow-[0_10px_20px_rgba(0,0,0,0.15)] border-b border-dashed border-gray-300 relative overflow-hidden ${isRolledOut ? '' : 'cursor-pointer hover:translate-y-[-30px] transition-transform'}`}
-                style={{ zIndex: isRolledOut ? 20 - index : 10 }}
-                onClick={() => !isRolledOut && setIsRolledOut(true)}
+                onClick={() => setIsRolledOut(true)}
               >
-                {/* Airline Branding Header */}
-                <div 
-                  className={`w-full py-1 px-3 flex justify-between items-center`}
-                  style={{
-                    backgroundColor: airlines[pass.airline?.toLowerCase()]?.color || '#475569',
-                    color: airlines[pass.airline?.toLowerCase()]?.textColor || '#ffffff'
-                  }}
-                >
-                   <span className="text-[10px] font-black tracking-widest">{pass.flightNumber}</span>
-                   <span className="text-[9px] font-bold uppercase opacity-80">{pass.airline}</span>
-                </div>
-                
-                <div className="p-3">
-                  <div className="flex justify-between items-center mb-1">
-                    <h4 className="font-sans font-bold text-lg uppercase tracking-wider">{pass.from} ✈ {pass.to}</h4>
-                  </div>
-                  <p className="text-[10px] text-gray-500 font-mono">{pass.date}</p>
-                </div>
-                
-                {/* Ticket side perforations effect */}
-                <div className="absolute top-1/2 -left-2 w-4 h-4 bg-[#fdfaf6] rounded-full -translate-y-1/2 shadow-inner"></div>
-                <div className="absolute top-1/2 -right-2 w-4 h-4 bg-[#fdfaf6] rounded-full -translate-y-1/2 shadow-inner"></div>
-              </motion.div>
-            )
-          })}
-        </AnimatePresence>
+                <FlightTicket pass={pass} airlines={airlines} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Unfurled State (Open) */}
+        {isRolledOut && (
+          <div className="w-full flex flex-col items-center">
+            {flights.map((pass, index) => (
+              <div
+                key={pass.id}
+                className="w-[95%] bg-white shadow-md border-b border-dashed border-gray-300 overflow-hidden relative cursor-default"
+                style={{
+                  opacity: 0,
+                  animation: `fadeInUp 0.4s ease forwards ${index * 0.03}s`
+                }}
+              >
+                <FlightTicket pass={pass} airlines={airlines} />
+              </div>
+            ))}
+          </div>
+        )}
+
       </div>
     </div>
   )
