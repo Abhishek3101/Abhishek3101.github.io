@@ -23,32 +23,66 @@ const getIconForCategory = (cat) => {
 }
 
 // Generate viewport-relative layout positions (percentages)
-// Items are scattered across the viewport in a pleasing spiral pattern
 const generateLayout = (items) => {
-  const centerX = 50; // center of viewport in %
-  const centerY = 50;
-  
-  return items.map((item, index) => {
-    const count = items.length || 1;
-    // Spiral with tighter radius that fits in viewport
-    // Max radius ~35% so items stay within 15%-85% of viewport
-    const angle = index * (2.4 + (1.0 / count));
-    const maxRadius = Math.min(35, 15 + count * 2);
-    const radius = 8 + (index / Math.max(count - 1, 1)) * maxRadius;
-    const x = centerX + radius * Math.cos(angle);
-    const y = centerY + radius * Math.sin(angle);
-    // Clamp to keep items within viewport bounds (with padding for item size)
-    const clampedX = Math.max(5, Math.min(88, x));
-    const clampedY = Math.max(8, Math.min(85, y));
-    const rotation = (Math.random() * 20) - 10;
+  // Count total items per category to determine grid sizes
+  const counts = {};
+  items.forEach(i => {
+    const cat = i.category || 'Career';
+    counts[cat] = (counts[cat] || 0) + 1;
+  });
+
+  const currentIdx = {};
+
+  return items.map((item) => {
+    const cat = item.category || 'Career';
+    currentIdx[cat] = (currentIdx[cat] || 0) + 1;
     
+    const total = counts[cat];
+    const idx = currentIdx[cat] - 1; // 0-based
+
+    // Determine grid size for this specific cluster (e.g., 3x3 for 9 items)
+    const cols = Math.ceil(Math.sqrt(total));
+    const rows = Math.ceil(total / cols);
+
+    const col = idx % cols;
+    const row = Math.floor(idx / cols);
+
+    // Define strict bounding boxes for each quadrant
+    // This creates a 10% dead-zone cross in the middle of the board (45-55)
+    // and a 15% safety margin on the outer edges (0-15 and 85-100)
+    const bounds = {
+      'Career': { minX: 15, maxX: 45, minY: 15, maxY: 45 },
+      'Award': { minX: 55, maxX: 85, minY: 15, maxY: 45 },
+      'Milestone': { minX: 15, maxX: 45, minY: 55, maxY: 85 },
+      'Personal': { minX: 55, maxX: 85, minY: 55, maxY: 85 }
+    };
+
+    const b = bounds[cat] || bounds['Career'];
+    
+    // Calculate exact X, Y grid spacing
+    const stepX = cols > 1 ? (b.maxX - b.minX) / (cols - 1) : 0;
+    const stepY = rows > 1 ? (b.maxY - b.minY) / (rows - 1) : 0;
+
+    // Base coordinate in the grid
+    const baseX = cols > 1 ? b.minX + col * stepX : (b.minX + b.maxX) / 2;
+    const baseY = rows > 1 ? b.minY + row * stepY : (b.minY + b.maxY) / 2;
+
+    // Add random jitter so it looks like a natural scatter, not a rigid spreadsheet
+    const jitterX = (Math.random() - 0.5) * 6; // +/- 3%
+    const jitterY = (Math.random() - 0.5) * 6; // +/- 3%
+
+    // Clamp inside the quadrant's strict boundary
+    const finalX = Math.max(b.minX, Math.min(b.maxX, baseX + jitterX));
+    const finalY = Math.max(b.minY, Math.min(b.maxY, baseY + jitterY));
+    const rotation = (Math.random() * 30) - 15;
+
     return {
       ...item,
-      x: clampedX,
-      y: clampedY,
+      x: finalX,
+      y: finalY,
       rotation,
-      type: getTypeForCategory(item.category),
-      icon: getIconForCategory(item.category)
+      type: getTypeForCategory(cat),
+      icon: getIconForCategory(cat)
     }
   });
 }
@@ -109,11 +143,11 @@ export default function Achievements() {
                 const itemB = items.find(i => i.id === idB)
                 if (!itemA || !itemB) return null;
                 
-                // Positions are in %, offset slightly toward center of each item
-                const x1 = `${itemA.x + 2}%`;
-                const y1 = `${itemA.y + 3}%`;
-                const x2 = `${itemB.x + 2}%`;
-                const y2 = `${itemB.y + 3}%`;
+                // Connections anchored to the exact center of each item
+                const x1 = `${itemA.x}%`;
+                const y1 = `${itemA.y}%`;
+                const x2 = `${itemB.x}%`;
+                const y2 = `${itemB.y}%`;
 
                 return (
                   <g key={idx}>
@@ -218,6 +252,8 @@ function DeskItem({ item, onClick, isDimmed }) {
       style={{
         left: `${item.x}%`,
         top: `${item.y}%`,
+        x: "-50%",
+        y: "-50%",
         rotate: item.rotation,
       }}
       whileHover={{ scale: 1.08, rotate: item.rotation > 0 ? item.rotation + 2 : item.rotation - 2 }}
@@ -309,92 +345,106 @@ function ExpandedItem({ item, onClose }) {
   const isLetter = item.type === 'letter'
   const isPolaroid = item.type === 'polaroid'
   const isSticky = item.type === 'sticky'
+  
+  const desc = item.desc || item.description || ''
 
   return (
     <div className="relative group perspective-1000">
       
       {isJournal && (
-        <div className="w-full max-w-[600px] h-auto md:h-[400px] bg-[#f4ebd8] flex flex-col md:flex-row shadow-2xl rounded-sm overflow-hidden"
+        <div className="w-full max-w-[750px] h-auto md:h-[450px] bg-[#f4ebd8] flex flex-col md:flex-row shadow-2xl rounded-sm overflow-hidden"
              style={{ backgroundImage: 'linear-gradient(90deg, rgba(0,0,0,0.1) 0%, transparent 2%, transparent 98%, rgba(0,0,0,0.1) 100%), linear-gradient(0deg, #f4ebd8, #fffdf8)' }}>
-          <div className="w-full md:w-1/2 h-48 md:h-full border-b md:border-b-0 md:border-r border-black/10 p-6 md:p-10 flex flex-col justify-center relative shadow-[inset_-10px_0_20px_rgba(0,0,0,0.05)]">
+          <div className="w-full md:w-5/12 h-48 md:h-full border-b md:border-b-0 md:border-r border-black/10 p-6 md:p-8 flex flex-col justify-center relative shadow-[inset_-10px_0_20px_rgba(0,0,0,0.05)]">
             <div className="w-16 h-16 rounded-full bg-black/5 flex items-center justify-center mb-6">
               <item.icon size={32} className="text-black/60" />
             </div>
             <h2 className="font-serif text-2xl md:text-3xl text-gray-900 mb-2">{item.title}</h2>
             <div className="font-mono text-sm text-gray-500 uppercase tracking-widest">{item.date}</div>
           </div>
-          <div className="w-full md:w-1/2 h-auto md:h-full p-6 md:p-10 flex flex-col justify-center relative shadow-[inset_10px_0_20px_rgba(0,0,0,0.05)]">
-             <p className="font-handwriting text-xl md:text-2xl text-gray-800 leading-relaxed">{item.desc}</p>
+          <div className="w-full md:w-7/12 h-[300px] md:h-full p-6 md:p-10 flex flex-col relative shadow-[inset_10px_0_20px_rgba(0,0,0,0.05)] overflow-y-auto">
+             <p className="font-serif text-base md:text-lg text-gray-800 leading-relaxed whitespace-pre-wrap">{desc}</p>
           </div>
         </div>
       )}
 
       {isBlueprint && (
-        <div className="w-full max-w-[700px] h-auto md:h-[500px] bg-[#1c3f60] p-4 md:p-8 shadow-2xl border-4 border-blue-400/20 flex flex-col"
+        <div className="w-full max-w-[800px] h-auto md:h-[450px] bg-[#1c3f60] p-4 md:p-6 shadow-2xl border-4 border-blue-400/20 flex flex-col"
              style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 2px, transparent 2px), linear-gradient(90deg, rgba(255,255,255,0.1) 2px, transparent 2px)', backgroundSize: '40px 40px' }}>
-          <div className="border-4 border-white/30 p-8 h-full flex flex-col relative">
-             <div className="absolute top-0 left-0 w-full flex justify-between p-4 border-b-4 border-white/30">
-               <div className="font-mono text-white/80 tracking-widest">PROJECT: {item.title.toUpperCase()}</div>
-               <div className="font-mono text-white/80 tracking-widest">DATE: {item.date}</div>
+          <div className="border-4 border-white/30 p-6 h-full flex flex-col md:flex-row relative gap-6">
+             <div className="absolute top-0 left-0 w-full flex justify-between p-3 border-b-4 border-white/30">
+               <div className="font-mono text-white/80 tracking-widest text-xs md:text-sm">PROJECT: {item.title.toUpperCase()}</div>
+               <div className="font-mono text-white/80 tracking-widest text-xs md:text-sm">DATE: {item.date}</div>
              </div>
-             <div className="flex-1 flex items-center justify-center mt-16">
-               <item.icon size={120} className="text-white/20" strokeWidth={1} />
+             
+             <div className="w-full md:w-1/3 flex items-center justify-center mt-12 md:mt-0 border-b-4 md:border-b-0 md:border-r-4 border-white/30 pb-6 md:pb-0 md:pr-6">
+               <item.icon size={100} className="text-white/20" strokeWidth={1} />
              </div>
-             <div className="absolute bottom-0 right-0 p-6 border-t-4 border-l-4 border-white/30 max-w-sm bg-[#1c3f60]">
-                <p className="font-mono text-white/90 text-sm leading-relaxed">{item.desc}</p>
+             
+             <div className="w-full md:w-2/3 mt-4 md:mt-12 overflow-y-auto pr-2">
+                <h3 className="font-mono text-white text-xl mb-4">{item.title}</h3>
+                <p className="font-mono text-white/90 text-sm md:text-base leading-relaxed whitespace-pre-wrap">{desc}</p>
              </div>
           </div>
         </div>
       )}
 
       {isLetter && (
-        <div className="w-full max-w-[500px] min-h-[400px] bg-[#fdfaf6] shadow-2xl p-6 md:p-12 flex flex-col border border-[#e8e4db]"
+        <div className="w-full max-w-[750px] h-auto md:h-[400px] bg-[#fdfaf6] shadow-2xl flex flex-col md:flex-row border border-[#e8e4db] overflow-hidden"
              style={{ backgroundImage: 'linear-gradient(to bottom, #fdfaf6, #f4efe6)' }}>
-          <div className="flex justify-between items-start mb-12 border-b border-gray-300 pb-8">
-            <div className="w-16 h-16 rounded-full border-2 border-red-800/40 flex items-center justify-center">
-              <item.icon size={28} className="text-red-800/60" />
-            </div>
-            <div className="text-right">
-              <div className="font-serif text-xl font-bold text-gray-900">{item.title}</div>
+          <div className="w-full md:w-1/3 p-6 md:p-10 border-b md:border-b-0 md:border-r border-gray-300 flex flex-col justify-between">
+            <div>
+              <div className="w-16 h-16 rounded-full border-2 border-red-800/40 flex items-center justify-center mb-6">
+                <item.icon size={28} className="text-red-800/60" />
+              </div>
+              <div className="font-serif text-2xl font-bold text-gray-900">{item.title}</div>
               <div className="font-mono text-sm text-gray-500 mt-2">{item.date}</div>
             </div>
+            <div className="hidden md:block mt-8 pt-6 border-t border-gray-200">
+               <div className="font-handwriting text-3xl text-gray-600">Approved</div>
+            </div>
           </div>
-          <div className="flex-1">
-            <p className="font-serif text-xl text-gray-800 leading-loose">{item.desc}</p>
-          </div>
-          <div className="mt-12 pt-8 border-t border-gray-200">
-             <div className="font-handwriting text-3xl text-gray-600">Approved</div>
+          <div className="w-full md:w-2/3 p-6 md:p-10 overflow-y-auto">
+            <p className="font-serif text-base md:text-lg text-gray-800 leading-loose whitespace-pre-wrap">{desc}</p>
           </div>
         </div>
       )}
 
       {isPolaroid && (
-        <div className="w-full max-w-[400px] bg-white p-4 md:p-6 pb-12 md:pb-20 shadow-2xl rounded-sm">
-          <div className="w-full aspect-square bg-gray-200 mb-6 overflow-hidden shadow-inner border border-black/5">
-            <img src={item.image} alt={item.title} className="w-full h-full object-cover filter contrast-125 saturate-50 sepia-[0.2]" />
+        <div className="w-full max-w-[650px] h-auto md:h-[400px] bg-white p-4 md:p-6 shadow-2xl rounded-sm flex flex-col md:flex-row gap-6 md:gap-10">
+          <div className="w-full md:w-1/2 aspect-square md:h-full bg-gray-200 overflow-hidden shadow-inner border border-black/5">
+            {item.image ? (
+              <img src={item.image} alt={item.title} className="w-full h-full object-cover filter contrast-125 saturate-50 sepia-[0.2]" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                 <item.icon size={48} className="text-gray-300" />
+              </div>
+            )}
           </div>
-          <div className="font-handwriting text-gray-800 text-center text-4xl mb-2">{item.title}</div>
-          <div className="font-mono text-gray-500 text-center text-sm">{item.date}</div>
-          <div className="font-handwriting text-gray-600 text-center text-xl mt-4">{item.desc}</div>
+          <div className="w-full md:w-1/2 flex flex-col justify-center overflow-y-auto pb-4 md:pb-0">
+            <div className="font-handwriting text-gray-800 text-4xl mb-2">{item.title}</div>
+            <div className="font-mono text-gray-500 text-sm mb-6">{item.date}</div>
+            <div className="font-handwriting text-gray-600 text-2xl leading-relaxed whitespace-pre-wrap">{desc}</div>
+          </div>
         </div>
       )}
 
       {isSticky && (
-        <div className={`w-full max-w-[400px] h-auto min-h-[250px] md:h-[400px] ${item.color} shadow-2xl p-6 md:p-10 flex flex-col justify-center`}
+        <div className={`w-full max-w-[600px] h-auto min-h-[300px] ${item.color} shadow-2xl p-6 md:p-10 flex flex-col`}
              style={{ clipPath: 'polygon(0 0, 100% 0, 100% 90%, 90% 100%, 0 100%)' }}>
-          <div className="font-handwriting text-gray-800 text-5xl leading-tight mb-8 text-center">{item.title}</div>
-          <div className="font-handwriting text-gray-700 text-2xl leading-relaxed text-center">{item.desc}</div>
-          <div className="font-mono text-black/40 text-sm absolute bottom-8 right-8">{item.date}</div>
+          <div className="font-handwriting text-gray-800 text-4xl md:text-5xl leading-tight mb-6">{item.title}</div>
+          <div className="font-handwriting text-gray-700 text-xl md:text-2xl leading-relaxed flex-1 overflow-y-auto pr-2 whitespace-pre-wrap">{desc}</div>
+          <div className="font-mono text-black/40 text-sm mt-6">{item.date}</div>
         </div>
       )}
 
       <button 
         onClick={onClose}
-        className="absolute top-2 right-2 md:-top-6 md:-right-6 w-10 h-10 md:w-12 md:h-12 bg-black/80 md:bg-black text-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors z-[100]"
+        className="absolute top-2 right-2 md:-top-4 md:-right-4 w-10 h-10 md:w-10 md:h-10 bg-black/80 md:bg-black text-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors z-[100]"
       >
-        <X size={20} className="md:w-6 md:h-6" />
+        <X size={20} />
       </button>
 
     </div>
   )
 }
+

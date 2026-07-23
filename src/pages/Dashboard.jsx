@@ -4,15 +4,111 @@ import PageWrapper from '@/components/PageWrapper'
 import { Lock, LogOut, Database, Zap } from 'lucide-react'
 import { signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth, googleProvider, db } from '@/lib/firebase'
-import { collection, addDoc, getDocs, updateDoc, doc, setDoc, getDoc } from 'firebase/firestore'
+import { collection, addDoc, getDocs, updateDoc, doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore'
 import TravelEngine from '@/pages/cms/TravelEngine'
 import GenericEngine from '@/pages/cms/GenericEngine'
+import { achievementsToSeed } from '../data/achievementsData'
 
 export default function Dashboard() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('Overview')
+  const [isSeeding, setIsSeeding] = useState(false)
   const navigate = useNavigate()
+
+  const handleSeedAchievements = async () => {
+    if (!window.confirm("Are you sure you want to seed the predefined CV achievements?")) return;
+    setIsSeeding(true);
+    try {
+      for (const item of achievementsToSeed) {
+        await addDoc(collection(db, 'achievements'), { ...item, createdAt: new Date().toISOString() });
+      }
+      alert('Achievements seeded successfully!');
+      window.location.reload();
+    } catch (e) {
+      alert('Error seeding: ' + e.message);
+    }
+    setIsSeeding(false);
+  }
+
+  const handleSeedCurations = async () => {
+    if (!window.confirm("Are you sure you want to seed the predefined curations? This will delete existing curations.")) return;
+    setIsSeeding(true);
+    try {
+      const { DUMMY_DATA } = await import('../lib/seedCMS');
+      const curations = DUMMY_DATA.curations;
+      
+      const querySnapshot = await getDocs(collection(db, 'curations'));
+      const deletePromises = querySnapshot.docs.map(document => deleteDoc(doc(db, 'curations', document.id)));
+      await Promise.all(deletePromises);
+      
+      for (const item of curations) {
+        await addDoc(collection(db, 'curations'), item);
+      }
+      alert('Curations seeded successfully!');
+    } catch (e) {
+      alert('Error seeding curations: ' + e.message);
+    }
+    setIsSeeding(false);
+  }
+
+  const handleSeedHorizon = async () => {
+    if (!window.confirm("Are you sure you want to append the predefined Horizon data? Existing data will NOT be deleted.")) return;
+    setIsSeeding(true);
+    try {
+      const { DUMMY_DATA } = await import('../lib/seedCMS');
+      const horizon = DUMMY_DATA.horizon;
+      for (const item of horizon) {
+        await addDoc(collection(db, 'horizon'), item);
+      }
+      alert('Horizon appended successfully!');
+    } catch (e) {
+      alert('Error seeding horizon: ' + e.message);
+    }
+    setIsSeeding(false);
+  }
+
+  const handleSeedAthletics = async () => {
+    if (!window.confirm("Are you sure you want to seed the predefined Athletics data? This will delete existing athletics data.")) return;
+    setIsSeeding(true);
+    try {
+      const { DUMMY_DATA } = await import('../lib/seedCMS');
+      const athletics = DUMMY_DATA.athletics;
+      
+      const querySnapshot = await getDocs(collection(db, 'athletics'));
+      const deletePromises = querySnapshot.docs.map(document => deleteDoc(doc(db, 'athletics', document.id)));
+      await Promise.all(deletePromises);
+      
+      for (const item of athletics) {
+        await addDoc(collection(db, 'athletics'), item);
+      }
+      alert('Athletics seeded successfully!');
+    } catch (e) {
+      alert('Error seeding athletics: ' + e.message);
+    }
+    setIsSeeding(false);
+  }
+
+  const handleSeedConversations = async () => {
+    if (!window.confirm("Are you sure you want to seed the predefined Conversations data? This will delete existing conversations.")) return;
+    setIsSeeding(true);
+    try {
+      const { DUMMY_DATA } = await import('../lib/seedCMS');
+      const conversations = DUMMY_DATA.conversations;
+      
+      const querySnapshot = await getDocs(collection(db, 'conversations'));
+      const deletePromises = querySnapshot.docs.map(document => deleteDoc(doc(db, 'conversations', document.id)));
+      await Promise.all(deletePromises);
+      
+      for (const item of conversations) {
+        await addDoc(collection(db, 'conversations'), item);
+      }
+      alert('Conversations seeded successfully!');
+    } catch (e) {
+      alert('Error seeding conversations: ' + e.message);
+    }
+    setIsSeeding(false);
+  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -206,69 +302,126 @@ export default function Dashboard() {
             {activeTab === 'Travel Engine' && <TravelEngine />}
             
             {activeTab === 'Achievements' && (
-              <GenericEngine 
-                collectionName="achievements" 
-                title="Achievements" 
-                description="Manage your milestones, awards, and major life events."
-                schema={[
-                  { name: 'title', label: 'Title', type: 'text' },
-                  { name: 'category', label: 'Category', type: 'select', options: ['Milestone', 'Award', 'Personal', 'Career'] },
-                  { name: 'date', label: 'Date', type: 'date' },
-                  { name: 'description', label: 'Description', type: 'textarea' },
-                  { name: 'link', label: 'Link (Optional)', type: 'text', required: false },
-                  { name: 'image', label: 'Upload Image', type: 'image' }
-                ]}
-              />
+              <div className="space-y-4">
+                <div className="flex justify-end">
+                  <button 
+                    onClick={handleSeedAchievements} 
+                    disabled={isSeeding}
+                    className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 text-indigo-700 px-4 py-2 rounded-lg shadow-sm hover:bg-indigo-100 font-medium text-sm transition-colors disabled:opacity-50"
+                  >
+                    <Database size={16} />
+                    {isSeeding ? 'Seeding...' : 'Seed CV Data'}
+                  </button>
+                </div>
+                <GenericEngine 
+                  collectionName="achievements" 
+                  title="Achievements" 
+                  description="Manage your milestones, awards, and major life events."
+                  schema={[
+                    { name: 'title', label: 'Title', type: 'text' },
+                    { name: 'category', label: 'Category', type: 'select', options: ['Milestone', 'Award', 'Personal', 'Career'] },
+                    { name: 'date', label: 'Date', type: 'date' },
+                    { name: 'desc', label: 'Description', type: 'textarea' },
+                    { name: 'link', label: 'Link (Optional)', type: 'text', required: false },
+                    { name: 'image', label: 'Upload Image', type: 'image' }
+                  ]}
+                />
+              </div>
             )}
 
             {activeTab === 'The Horizon' && (
-              <GenericEngine 
-                collectionName="horizon" 
-                title="The Horizon" 
-                description="Visions, startup ideas, and profound thoughts for the future."
-                schema={[
-                  { name: 'title', label: 'Title', type: 'text' },
-                  { name: 'category', label: 'Category', type: 'select', options: ['Startup', 'Thought', 'Vision'] },
-                  { name: 'tags', label: 'Tags (comma separated)', type: 'text', required: false },
-                  { name: 'description', label: 'Description/Idea', type: 'textarea' },
-                  { name: 'link', label: 'Link (Optional)', type: 'text', required: false },
-                  { name: 'image', label: 'Wireframe/Picture', type: 'image' }
-                ]}
-              />
+              <div className="space-y-6">
+                <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <div>
+                    <h3 className="font-bold text-gray-800">Seed Predefined Horizon Ideas</h3>
+                    <p className="text-sm text-gray-600">Append new ideas derived from your life context. Does not delete existing ideas.</p>
+                  </div>
+                  <button 
+                    onClick={handleSeedHorizon} 
+                    disabled={isSeeding}
+                    className="bg-red-800 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 font-medium text-sm"
+                  >
+                    {isSeeding ? 'Seeding...' : 'Seed Horizon'}
+                  </button>
+                </div>
+                <GenericEngine 
+                  collectionName="horizon" 
+                  title="The Horizon" 
+                  description="Visions, startup ideas, and profound thoughts for the future."
+                  schema={[
+                    { name: 'title', label: 'Title', type: 'text' },
+                    { name: 'category', label: 'Category', type: 'select', options: ['Startup', 'Thought', 'Vision'] },
+                    { name: 'tags', label: 'Tags (comma separated)', type: 'text', required: false },
+                    { name: 'description', label: 'Description/Idea', type: 'textarea' },
+                    { name: 'link', label: 'Link (Optional)', type: 'text', required: false },
+                    { name: 'image', label: 'Wireframe/Picture', type: 'image' }
+                  ]}
+                />
+              </div>
             )}
 
             {activeTab === 'Curations' && (
-              <GenericEngine 
-                collectionName="curations" 
-                title="Curations" 
-                description="Books, movies, music, and articles you recommend."
-                schema={[
-                  { name: 'title', label: 'Title', type: 'text' },
-                  { name: 'category', label: 'Category', type: 'select', options: ['Book', 'Movie', 'Music', 'Article'] },
-                  { name: 'author', label: 'Author/Creator', type: 'text', required: false },
-                  { name: 'review', label: 'Review/Thoughts', type: 'textarea' },
-                  { name: 'link', label: 'Link (YouTube/Article)', type: 'text', required: false },
-                  { name: 'image', label: 'Cover Image', type: 'image' }
-                ]}
-              />
+              <div className="space-y-6">
+                <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <div>
+                    <h3 className="font-bold text-gray-800">Seed Predefined Curations</h3>
+                    <p className="text-sm text-gray-600">Populate the database with all requested books, movies, music, and podcasts.</p>
+                  </div>
+                  <button 
+                    onClick={handleSeedCurations} 
+                    disabled={isSeeding}
+                    className="bg-red-800 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 font-medium text-sm"
+                  >
+                    {isSeeding ? 'Seeding...' : 'Seed Curations'}
+                  </button>
+                </div>
+                <GenericEngine 
+                  collectionName="curations" 
+                  title="Curations" 
+                  description="Books, movies, music, and articles you recommend."
+                  schema={[
+                    { name: 'title', label: 'Title', type: 'text' },
+                    { name: 'category', label: 'Category', type: 'select', options: ['Book', 'Movie', 'Music', 'Article/Video'] },
+                    { name: 'author', label: 'Author/Creator', type: 'text', required: false },
+                    { name: 'review', label: 'Review/Thoughts', type: 'textarea' },
+                    { name: 'link', label: 'Link (YouTube/Article)', type: 'text', required: false },
+                    { name: 'image', label: 'Cover Image', type: 'image' }
+                  ]}
+                />
+              </div>
             )}
 
             {activeTab === 'Athletics' && (
-              <GenericEngine 
-                collectionName="athletics" 
-                title="Athletics & Sports" 
-                description="Log your daily activities and related memories."
-                schema={[
-                  { name: 'date', label: 'Date', type: 'date' },
-                  { name: 'gym', label: 'Gym', type: 'select', options: ['No', 'Yes'] },
-                  { name: 'cycling', label: 'Cycling (km)', type: 'number', defaultValue: '0' },
-                  { name: 'swimming', label: 'Swimming (m)', type: 'number', defaultValue: '0' },
-                  { name: 'running', label: 'Running (km)', type: 'number', defaultValue: '0' },
-                  { name: 'racketSport', label: 'Racket Sport', type: 'select', options: ['None', 'Tennis', 'Badminton', 'Squash', 'Pickleball'], defaultValue: 'None' },
-                  { name: 'journal', label: 'Journal/Memory', type: 'textarea' },
-                  { name: 'image', label: 'Memory Photo (Optional)', type: 'image' }
-                ]}
-              />
+              <div className="space-y-6">
+                <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <div>
+                    <h3 className="font-bold text-gray-800">Seed Predefined Athletics Stats</h3>
+                    <p className="text-sm text-gray-600">Populate the database with your specific historical matches and distances.</p>
+                  </div>
+                  <button 
+                    onClick={handleSeedAthletics} 
+                    disabled={isSeeding}
+                    className="bg-red-800 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 font-medium text-sm"
+                  >
+                    {isSeeding ? 'Seeding...' : 'Seed Athletics'}
+                  </button>
+                </div>
+                <GenericEngine 
+                  collectionName="athletics" 
+                  title="Athletics" 
+                  description="Log daily athletic activities: gym, cardio, racket sports, etc."
+                  schema={[
+                    { name: 'date', label: 'Date', type: 'text', required: true },
+                    { name: 'gym', label: 'Gym (Yes/No)', type: 'select', options: ['Yes', 'No'] },
+                    { name: 'cycling', label: 'Cycling (km)', type: 'text' },
+                    { name: 'swimming', label: 'Swimming (m)', type: 'text' },
+                    { name: 'running', label: 'Running (km)', type: 'text' },
+                    { name: 'racketSport', label: 'Racket Sport', type: 'select', options: ['None', 'Tennis', 'Squash', 'Badminton', 'Pickleball'] },
+                    { name: 'water', label: 'Water (Liters)', type: 'text' },
+                    { name: 'sleep', label: 'Sleep (Hours)', type: 'text' }
+                  ]}
+                />
+              </div>
             )}
 
             {activeTab === 'The Ledger' && (
@@ -287,6 +440,20 @@ export default function Dashboard() {
 
             {activeTab === 'Conversations' && (
               <div className="space-y-8">
+                <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <div>
+                    <h3 className="font-bold text-gray-800">Seed Predefined Conversations</h3>
+                    <p className="text-sm text-gray-600">Populate the coffee page with your highly curated personal intelligence questions.</p>
+                  </div>
+                  <button 
+                    onClick={handleSeedConversations} 
+                    disabled={isSeeding}
+                    className="bg-red-800 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 font-medium text-sm"
+                  >
+                    {isSeeding ? 'Seeding...' : 'Seed Conversations'}
+                  </button>
+                </div>
+
                 <GenericEngine 
                   collectionName="conversations" 
                   title="Coffee Conversations" 

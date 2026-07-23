@@ -88,7 +88,7 @@ export default function Conversation() {
           </motion.div>
 
           {/* The Conversation Deck */}
-          <div className="relative w-full max-w-sm h-80 sm:h-96 mb-16 perspective-1000">
+          <div className="relative w-full max-w-sm h-[28rem] sm:h-[32rem] mb-16 perspective-1000">
             <AnimatePresence>
               {prompts.map((prompt, index) => {
                 const offsetIndex = (index - activeIndex + prompts.length) % prompts.length
@@ -128,7 +128,7 @@ export default function Conversation() {
                       <div className="text-zinc-400 mb-6 uppercase tracking-widest text-[10px] font-bold">
                         Card {index + 1} of {prompts.length}
                       </div>
-                      <h3 className="font-serif text-2xl sm:text-3xl text-zinc-900 leading-tight">
+                      <h3 className="font-serif text-xl sm:text-2xl text-zinc-900 leading-tight">
                         "{prompt}"
                       </h3>
                     </div>
@@ -138,7 +138,7 @@ export default function Conversation() {
                       {socials['WhatsApp'] && (
                         <button 
                           onClick={() => handleWhatsApp(prompt)}
-                          className="w-full py-3.5 bg-[#25D366] text-white rounded-xl font-medium shadow-sm shadow-[#25D366]/20 flex items-center justify-center gap-2 hover:bg-[#20bd5a] transition-colors"
+                          className="w-full py-3 bg-[#25D366] text-white rounded-xl font-medium shadow-sm shadow-[#25D366]/20 flex items-center justify-center gap-2 hover:bg-[#20bd5a] transition-colors"
                         >
                           <MessageCircle size={18} />
                           Send via WhatsApp
@@ -147,7 +147,7 @@ export default function Conversation() {
                       {socials['Email'] && (
                         <button 
                           onClick={() => handleEmail(prompt)}
-                          className="w-full py-3.5 bg-zinc-900 text-white rounded-xl font-medium shadow-sm flex items-center justify-center gap-2 hover:bg-zinc-800 transition-colors"
+                          className="w-full py-3 bg-zinc-900 text-white rounded-xl font-medium shadow-sm flex items-center justify-center gap-2 hover:bg-zinc-800 transition-colors"
                         >
                           <Mail size={18} />
                           Send via Email

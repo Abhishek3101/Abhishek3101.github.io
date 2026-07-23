@@ -1,7 +1,7 @@
 import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from './firebase';
 
-const DUMMY_DATA = {
+export const DUMMY_DATA = {
   achievements: [
     {
       title: 'Launched Antigravity',
@@ -23,7 +23,7 @@ const DUMMY_DATA = {
     }
   ],
   horizon: [
-    {
+{
       title: 'Brain-Computer Interfaces',
       category: 'Thought',
       date: '2026-01-10',
@@ -42,74 +42,2014 @@ const DUMMY_DATA = {
       link: '',
       image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=500&q=80',
       createdAt: new Date().toISOString()
-    }
-  ],
-  curations: [
-    {
-      title: 'Dune',
-      category: 'Book',
-      author: 'Frank Herbert',
-      review: 'A masterpiece of world-building and political intrigue. It profoundly changed how I view ecology and religion in sci-fi.',
-      link: '',
-      image: 'https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?w=500&q=80',
-      createdAt: new Date().toISOString()
     },
     {
-      title: 'Interstellar',
-      category: 'Movie',
-      author: 'Christopher Nolan',
-      review: 'The ultimate space epic. The score by Hans Zimmer alone makes it a 10/10.',
-      link: 'https://youtube.com/watch?v=zSWdZVtXT7E',
-      image: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=500&q=80',
-      createdAt: new Date().toISOString()
+        "title": "Macroeconomic AI Analyst",
+        "category": "Startup",
+        "date": "2026-07-19",
+        "tags": "fintech, agentic-ai, knowledge-graphs",
+        "description": "Building on MarketPulseAI to create a fully autonomous hedge-fund analyst. Utilizing GraphRAG and causal inference models to predict macro-level market shifts based on real-time geopolitical news, solving complex financial models from first principles.",
+        "link": "",
+        "image": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=500&q=80",
+        "createdAt": "2026-07-19T16:38:04.747Z"
+    },
+    {
+        "title": "Democratizing Digital Twins",
+        "category": "Vision",
+        "date": "2026-07-19",
+        "tags": "aerospace, digital-twins, education",
+        "description": "Scaling the learnings from the IISC UAV aeroelastic twin. What if every engineering student had access to a cloud-based physics-informed digital twin? I want to create a platform that replaces expensive physical prototypes with high-fidelity, interactive browser simulations.",
+        "link": "",
+        "image": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=500&q=80",
+        "createdAt": "2026-07-19T16:38:04.747Z"
+    },
+    {
+        "title": "Autonomous Climate Grids",
+        "category": "Thought",
+        "date": "2026-07-19",
+        "tags": "climate-tech, MPC, sustainability",
+        "description": "Applying Model Predictive Control (MPC) algorithms beyond automotive systems to large-scale residential climate grids. By treating an entire neighborhood as a single thermal optimization problem, we can drastically reduce baseline energy consumption.",
+        "link": "",
+        "image": "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=500&q=80",
+        "createdAt": "2026-07-19T16:38:04.747Z"
+    },
+    {
+        "title": "Land Rover Defender",
+        "category": "Vision",
+        "date": "2026-07-19",
+        "tags": "dream-car, off-road, adventure",
+        "description": "A symbol of rugged capability and timeless design. The ultimate machine for conquering both urban jungles and the deepest wilderness.",
+        "link": "",
+        "image": "https://images.unsplash.com/photo-1627429188812-70b79ec2643a?w=500&q=80",
+        "createdAt": "2026-07-19T16:41:11.953Z"
+    },
+    {
+        "title": "A Quiet Bungalow",
+        "category": "Vision",
+        "date": "2026-07-19",
+        "tags": "home, peace, architecture",
+        "description": "A minimalist bungalow surrounded by nature. A personal sanctuary for deep work, reading, and finding stillness away from the noise of the world.",
+        "link": "",
+        "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&q=80",
+        "createdAt": "2026-07-19T16:41:11.953Z"
+    },
+    {
+        "title": "The Art of Simplification",
+        "category": "Thought",
+        "date": "2026-07-19",
+        "tags": "philosophy, engineering",
+        "description": "Engineering teaches you to build complex systems, but true mastery is in simplifying them. The most elegant solutions are the ones that take away the unnecessary until only the essential remains.",
+        "link": "",
+        "image": "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=500&q=80",
+        "createdAt": "2026-07-19T16:41:11.953Z"
+    },
+    {
+        "title": "Compounding in Life",
+        "category": "Thought",
+        "date": "2026-07-19",
+        "tags": "growth, mindset",
+        "description": "We often overestimate what we can do in a day, but vastly underestimate what we can achieve in a decade. Consistency is the ultimate edge.",
+        "link": "",
+        "image": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&q=80",
+        "createdAt": "2026-07-19T16:41:11.953Z"
     }
+
+],
+  curations: [
+    // Books
+    { title: 'The Psychology of Money', category: 'Book', author: 'Morgan Housel', review: 'Timeless lessons on wealth, greed, and happiness.', link: '', image: 'https://upload.wikimedia.org/wikipedia/en/2/20/The_Psychology_of_Money_cover.jpg', createdAt: new Date().toISOString() },
+    { title: "Let's Talk Money", category: 'Book', author: 'Monika Halan', review: 'A practical, no-nonsense guide to personal finance in India.', link: '', image: 'https://m.media-amazon.com/images/I/81N7FmJlB8L._AC_UF1000,1000_QL80_.jpg', createdAt: new Date().toISOString() },
+    { title: 'Hooked', category: 'Book', author: 'Nir Eyal', review: 'How to build habit-forming products.', link: '', image: 'https://m.media-amazon.com/images/I/71uWyhGZ5iL._AC_UF1000,1000_QL80_.jpg', createdAt: new Date().toISOString() },
+    { title: 'Zero to One', category: 'Book', author: 'Peter Thiel', review: 'Notes on startups, or how to build the future.', link: '', image: 'https://upload.wikimedia.org/wikipedia/en/1/11/Zero_to_One_cover.jpg', createdAt: new Date().toISOString() },
+    { title: 'The Lean Startup', category: 'Book', author: 'Eric Ries', review: 'How today\'s entrepreneurs use continuous innovation to create radically successful businesses.', link: '', image: 'https://upload.wikimedia.org/wikipedia/en/1/11/The_Lean_Startup.jpg', createdAt: new Date().toISOString() },
+    { title: 'Sprint', category: 'Book', author: 'Jake Knapp', review: 'How to solve big problems and test new ideas in just five days.', link: '', image: 'https://m.media-amazon.com/images/I/719Fv6xPjOL._AC_UF1000,1000_QL80_.jpg', createdAt: new Date().toISOString() },
+    { title: 'Atomic Habits', category: 'Book', author: 'James Clear', review: 'An easy & proven way to build good habits & break bad ones.', link: '', image: 'https://upload.wikimedia.org/wikipedia/en/6/63/Atomic_habits_cover.jpg', createdAt: new Date().toISOString() },
+    { title: 'Thinking, Fast and Slow', category: 'Book', author: 'Daniel Kahneman', review: 'A deep dive into the two systems that drive the way we think.', link: '', image: 'https://upload.wikimedia.org/wikipedia/en/c/c1/Thinking%2C_Fast_and_Slow.jpg', createdAt: new Date().toISOString() },
+    { title: 'The Hard Thing About Hard Things', category: 'Book', author: 'Ben Horowitz', review: 'Building a business when there are no easy answers.', link: '', image: 'https://m.media-amazon.com/images/I/810u9MkVzhL._AC_UF1000,1000_QL80_.jpg', createdAt: new Date().toISOString() },
+    { title: 'Continuous Discovery Habits', category: 'Book', author: 'Teresa Torres', review: 'Discover products that create customer value and business value.', link: '', image: 'https://m.media-amazon.com/images/I/71-0s3n2jPL._AC_UF1000,1000_QL80_.jpg', createdAt: new Date().toISOString() },
+    
+    // Movies (Imtiaz Ali)
+    { title: 'Jab We Met', category: 'Movie', author: 'Imtiaz Ali', review: 'A beautiful journey of self-discovery and love.', link: '', image: 'https://upload.wikimedia.org/wikipedia/en/9/9f/Jab_We_Met_Poster.jpg', createdAt: new Date().toISOString() },
+    { title: 'Rockstar', category: 'Movie', author: 'Imtiaz Ali', review: 'Music, heartbreak, and a deeply emotional narrative.', link: '', image: 'https://upload.wikimedia.org/wikipedia/en/8/87/Rockstar_%282011_film%29_poster.jpg', createdAt: new Date().toISOString() },
+    { title: 'Tamasha', category: 'Movie', author: 'Imtiaz Ali', review: 'Finding your true story amidst societal expectations.', link: '', image: 'https://upload.wikimedia.org/wikipedia/en/5/5e/Tamasha_Poster.jpg', createdAt: new Date().toISOString() },
+    { title: 'Highway', category: 'Movie', author: 'Imtiaz Ali', review: 'Finding freedom in captivity on the roads of India.', link: '', image: 'https://upload.wikimedia.org/wikipedia/en/9/93/Highway_2014_poster.jpg', createdAt: new Date().toISOString() },
+    { title: 'Love Aaj Kal', category: 'Movie', author: 'Imtiaz Ali', review: 'Contrasting love across two different generations.', link: '', image: 'https://upload.wikimedia.org/wikipedia/en/2/22/Love_Aaj_Kal_2009.jpg', createdAt: new Date().toISOString() },
+    
+    // Movies (Others)
+    { title: '3 Idiots', category: 'Movie', author: 'Rajkumar Hirani', review: 'An iconic film challenging the education system while celebrating friendship.', link: '', image: 'https://upload.wikimedia.org/wikipedia/en/d/df/3_idiots_poster.jpg', createdAt: new Date().toISOString() },
+    { title: 'Interstellar', category: 'Movie', author: 'Christopher Nolan', review: 'The ultimate space epic. The score by Hans Zimmer alone makes it a 10/10.', link: '', image: 'https://upload.wikimedia.org/wikipedia/en/b/bc/Interstellar_film_poster.jpg', createdAt: new Date().toISOString() },
+    { title: '2001: A Space Odyssey', category: 'Movie', author: 'Stanley Kubrick', review: 'A pioneering sci-fi masterpiece exploring human evolution and AI.', link: '', image: 'https://upload.wikimedia.org/wikipedia/en/1/1c/2001_A_Space_Odyssey_%281968%29.png', createdAt: new Date().toISOString() },
+    { title: 'The Avengers (Marvel)', category: 'Movie', author: 'Marvel Studios', review: 'The epic crossover that redefined blockbuster cinematic universes.', link: '', image: 'https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?w=500&q=80', createdAt: new Date().toISOString() },
+    { title: 'Iron Man (Marvel)', category: 'Movie', author: 'Marvel Studios', review: 'The movie that started the MCU with incredible charm.', link: '', image: 'https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?w=500&q=80', createdAt: new Date().toISOString() },
+    { title: 'Mission: Impossible - Fallout', category: 'Movie', author: 'Christopher McQuarrie', review: 'Incredible practical stunts and edge-of-your-seat action sequences.', link: '', image: 'https://upload.wikimedia.org/wikipedia/en/f/ff/MI_%E2%80%93_Fallout.jpg', createdAt: new Date().toISOString() },
+    
+    // Music
+    { title: 'Perfect', category: 'Music', author: 'Ed Sheeran', review: 'A beautiful, timeless acoustic ballad.', link: 'https://open.spotify.com/', image: 'https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/15/e6/e8/15e6e8a4-4190-6a8b-86c3-ab4a51b88288/190295851286.jpg/600x600bb.jpg', createdAt: new Date().toISOString() },
+    { title: 'Nice English Songs', category: 'Music', author: 'Spotify Playlist', review: 'My go-to collection of great English tracks.', link: 'https://open.spotify.com/', image: 'https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/85/67/71/856771e4-7058-c00f-a42b-3f10b8394a1c/19UMGIM53422.rgb.jpg/600x600bb.jpg', createdAt: new Date().toISOString() },
+    { title: 'Indie India', category: 'Music', author: 'Spotify Playlist', review: 'The best of Indian indie music scene.', link: 'https://open.spotify.com/', image: 'https://is1-ssl.mzstatic.com/image/thumb/Music/bd/24/61/mzi.wwjszdeo.tif/600x600bb.jpg', createdAt: new Date().toISOString() },
+    { title: 'Main Vapas Aaunga', category: 'Music', author: 'Spotify', review: 'A deeply nostalgic and emotive album.', link: 'https://open.spotify.com/', image: 'https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a0/15/c2/a015c2bb-0dbd-ac82-0d70-c6d8af9e3dc2/8901854116515.jpg/600x600bb.jpg', createdAt: new Date().toISOString() },
+    { title: 'Ghazals Collection', category: 'Music', author: 'Spotify Playlist', review: 'Soulful ghazals for peaceful evenings.', link: 'https://open.spotify.com/', image: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/94/8d/62/948d62cd-cbc1-fa0a-8d38-2823f0d8c660/199538848984.jpg/600x600bb.jpg', createdAt: new Date().toISOString() },
+    { title: 'Coke Studio Best', category: 'Music', author: 'Spotify Playlist', review: 'Incredible fusions of traditional and modern music.', link: 'https://open.spotify.com/', image: 'https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/3c/ab/42/3cab42d4-ddc2-2496-c60d-ead1ad48139b/cover.jpg/600x600bb.jpg', createdAt: new Date().toISOString() },
+    
+    // Article/Video
+    { title: 'WTF is Podcast', category: 'Article/Video', author: 'Nikhil Kamath', review: 'In-depth conversations decoding business, tech, and life with industry leaders.', link: 'https://www.youtube.com/@nikhil.kamath', image: 'https://pbs.twimg.com/profile_images/1691307994406240256/m4-K-RMB_400x400.jpg', createdAt: new Date().toISOString() }
   ],
   athletics: [
+
     {
-      date: '2026-06-16',
-      gym: 'Yes',
-      cycling: '15',
-      swimming: '0',
-      running: '5',
-      racketSport: 'None',
-      water: '3',
-      sleep: '7.5',
-      createdAt: new Date().toISOString()
+        "date": "2025-01-02",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Tennis",
+        "water": "3.9",
+        "sleep": "6.4",
+        "createdAt": "2026-07-19T16:43:55.669Z"
     },
     {
-      date: '2026-06-15',
-      gym: 'No',
-      cycling: '0',
-      swimming: '0',
-      running: '0',
-      racketSport: 'Squash',
-      water: '4',
-      sleep: '8',
-      createdAt: new Date().toISOString()
+        "date": "2025-01-03",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Tennis",
+        "water": "2.5",
+        "sleep": "6.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
     },
     {
-      date: '2026-06-14',
-      gym: 'No',
-      cycling: '40',
-      swimming: '1500',
-      running: '0',
-      racketSport: 'None',
-      water: '4.5',
-      sleep: '6.5',
-      createdAt: new Date().toISOString()
+        "date": "2025-01-04",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Tennis",
+        "water": "2.5",
+        "sleep": "7.6",
+        "createdAt": "2026-07-19T16:43:55.669Z"
     },
     {
-      date: '2026-05-20',
-      gym: 'Yes',
-      cycling: '0',
-      swimming: '2000',
-      running: '10',
-      racketSport: 'Tennis',
-      water: '3.5',
-      sleep: '8',
-      createdAt: new Date().toISOString()
+        "date": "2025-01-05",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Tennis",
+        "water": "3.2",
+        "sleep": "6.5",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-06",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Tennis",
+        "water": "2.5",
+        "sleep": "7.5",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-07",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Tennis",
+        "water": "2.8",
+        "sleep": "7.9",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-08",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Tennis",
+        "water": "2.4",
+        "sleep": "7.6",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-09",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Squash",
+        "water": "2.3",
+        "sleep": "7.4",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-10",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Squash",
+        "water": "3.6",
+        "sleep": "7.2",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-11",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Squash",
+        "water": "3.7",
+        "sleep": "7.6",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-12",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "2.3",
+        "sleep": "7.9",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-13",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "3.0",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-14",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "2.8",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-15",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "2.5",
+        "sleep": "7.0",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-16",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "3.6",
+        "sleep": "6.6",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-17",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "3.5",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-18",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "3.7",
+        "sleep": "6.3",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-19",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "3.4",
+        "sleep": "6.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-20",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "3.2",
+        "sleep": "6.0",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-21",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "2.5",
+        "sleep": "6.5",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-22",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "2.4",
+        "sleep": "6.1",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-23",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "3.8",
+        "sleep": "6.4",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-24",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "2.3",
+        "sleep": "7.9",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-25",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "2.8",
+        "sleep": "7.3",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-26",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "2.9",
+        "sleep": "7.0",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-27",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "3.2",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-28",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "2.2",
+        "sleep": "7.2",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-29",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "2.0",
+        "sleep": "6.4",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-30",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "2.6",
+        "sleep": "7.4",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-01-31",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "2.8",
+        "sleep": "7.6",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-01",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "3.8",
+        "sleep": "7.8",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-02",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "3.8",
+        "sleep": "6.9",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-03",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "2.7",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-04",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Pickleball",
+        "water": "3.2",
+        "sleep": "7.6",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-05",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.1",
+        "sleep": "6.9",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-06",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.3",
+        "sleep": "6.9",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-07",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.8",
+        "sleep": "6.8",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-08",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.7",
+        "sleep": "7.6",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-09",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.0",
+        "sleep": "6.1",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-10",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.7",
+        "sleep": "6.4",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-11",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.3",
+        "sleep": "6.8",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-12",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.2",
+        "sleep": "7.2",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-13",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.1",
+        "sleep": "7.1",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-14",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "4.0",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-15",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.4",
+        "sleep": "7.8",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-16",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.5",
+        "sleep": "6.9",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-17",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.2",
+        "sleep": "7.1",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-18",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.2",
+        "sleep": "6.8",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-19",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.5",
+        "sleep": "8.0",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-20",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.6",
+        "sleep": "6.2",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-21",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.7",
+        "sleep": "6.2",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-22",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.8",
+        "sleep": "6.2",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-23",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.5",
+        "sleep": "7.0",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-24",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.1",
+        "sleep": "7.3",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-25",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.1",
+        "sleep": "6.6",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-26",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.7",
+        "sleep": "7.2",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-27",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.2",
+        "sleep": "6.1",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-02-28",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.4",
+        "sleep": "6.9",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-01",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.5",
+        "sleep": "6.5",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-02",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.9",
+        "sleep": "6.2",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-03",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.4",
+        "sleep": "6.1",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-04",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.4",
+        "sleep": "7.2",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-05",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.2",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-06",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.0",
+        "sleep": "6.0",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-07",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.0",
+        "sleep": "7.2",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-08",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.0",
+        "sleep": "6.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-09",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.8",
+        "sleep": "7.1",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-10",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.6",
+        "sleep": "7.8",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-11",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.5",
+        "sleep": "6.6",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-12",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.1",
+        "sleep": "7.5",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-13",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.6",
+        "sleep": "6.5",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-14",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.1",
+        "sleep": "7.3",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-15",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.5",
+        "sleep": "7.9",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-16",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.3",
+        "sleep": "7.0",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-17",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.8",
+        "sleep": "7.8",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-18",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.4",
+        "sleep": "6.4",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-19",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.7",
+        "sleep": "6.0",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-20",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.7",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-21",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.5",
+        "sleep": "6.1",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-22",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.4",
+        "sleep": "6.4",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-23",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.8",
+        "sleep": "7.5",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-24",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.6",
+        "sleep": "7.3",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-25",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.7",
+        "sleep": "6.8",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-26",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.7",
+        "sleep": "7.3",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-27",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.8",
+        "sleep": "6.8",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-28",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.2",
+        "sleep": "7.5",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-29",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.5",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-30",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.1",
+        "sleep": "7.6",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-03-31",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.5",
+        "sleep": "6.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-01",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.8",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-02",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.6",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-03",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.4",
+        "sleep": "7.9",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-04",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.4",
+        "sleep": "6.9",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-05",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.4",
+        "sleep": "7.4",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-06",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.8",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-07",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.5",
+        "sleep": "7.5",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-08",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.1",
+        "sleep": "7.0",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-09",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.8",
+        "sleep": "7.9",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-10",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.5",
+        "sleep": "6.3",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-11",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.2",
+        "sleep": "7.5",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-12",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.3",
+        "sleep": "7.2",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-13",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.1",
+        "sleep": "6.3",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-14",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.1",
+        "sleep": "7.4",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-15",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.4",
+        "sleep": "7.5",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-16",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.2",
+        "sleep": "6.9",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-17",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.4",
+        "sleep": "7.2",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-18",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.2",
+        "sleep": "6.5",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-19",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.1",
+        "sleep": "6.9",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-20",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.7",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-21",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.6",
+        "sleep": "6.2",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-22",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.9",
+        "sleep": "7.4",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-23",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.5",
+        "sleep": "6.8",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-24",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "4.0",
+        "sleep": "7.1",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-25",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.2",
+        "sleep": "7.4",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-26",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.5",
+        "sleep": "6.2",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-27",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.2",
+        "sleep": "6.2",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-28",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.9",
+        "sleep": "7.0",
+        "createdAt": "2026-07-19T16:43:55.669Z"
+    },
+    {
+        "date": "2025-04-29",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.3",
+        "sleep": "6.1",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-04-30",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.2",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-01",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.2",
+        "sleep": "6.5",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-02",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.9",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-03",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "3.0",
+        "sleep": "7.8",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-04",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.8",
+        "sleep": "7.9",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-05",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "Badminton",
+        "water": "2.6",
+        "sleep": "6.8",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-06",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "50",
+        "racketSport": "None",
+        "water": "2.3",
+        "sleep": "7.4",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-07",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "10",
+        "racketSport": "None",
+        "water": "2.5",
+        "sleep": "7.3",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-08",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "5",
+        "racketSport": "None",
+        "water": "2.9",
+        "sleep": "6.7",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-09",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "4",
+        "racketSport": "None",
+        "water": "2.9",
+        "sleep": "7.0",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-10",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "3",
+        "racketSport": "None",
+        "water": "2.1",
+        "sleep": "8.0",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-11",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "5",
+        "racketSport": "None",
+        "water": "3.9",
+        "sleep": "7.2",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-12",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "3",
+        "racketSport": "None",
+        "water": "2.2",
+        "sleep": "7.8",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-13",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "4",
+        "racketSport": "None",
+        "water": "3.6",
+        "sleep": "6.3",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-14",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "3",
+        "racketSport": "None",
+        "water": "3.2",
+        "sleep": "6.2",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-15",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "5",
+        "racketSport": "None",
+        "water": "3.9",
+        "sleep": "7.4",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-16",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "5",
+        "racketSport": "None",
+        "water": "3.4",
+        "sleep": "6.5",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-17",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "4",
+        "racketSport": "None",
+        "water": "2.2",
+        "sleep": "6.9",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-18",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "4",
+        "racketSport": "None",
+        "water": "3.6",
+        "sleep": "6.7",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-19",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "5",
+        "racketSport": "None",
+        "water": "3.6",
+        "sleep": "7.2",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-20",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "0",
+        "running": "5",
+        "racketSport": "None",
+        "water": "2.6",
+        "sleep": "7.3",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-21",
+        "gym": "No",
+        "cycling": "100",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.8",
+        "sleep": "7.9",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-22",
+        "gym": "No",
+        "cycling": "25",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "None",
+        "water": "3.4",
+        "sleep": "7.1",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-23",
+        "gym": "No",
+        "cycling": "21",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.0",
+        "sleep": "6.7",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-24",
+        "gym": "No",
+        "cycling": "21",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.7",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-25",
+        "gym": "No",
+        "cycling": "20",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.9",
+        "sleep": "6.7",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-26",
+        "gym": "Yes",
+        "cycling": "21",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.1",
+        "sleep": "7.0",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-27",
+        "gym": "Yes",
+        "cycling": "20",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "None",
+        "water": "3.9",
+        "sleep": "7.8",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-28",
+        "gym": "Yes",
+        "cycling": "21",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.8",
+        "sleep": "6.5",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-29",
+        "gym": "No",
+        "cycling": "20",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.9",
+        "sleep": "7.5",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-30",
+        "gym": "Yes",
+        "cycling": "25",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.4",
+        "sleep": "6.5",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-05-31",
+        "gym": "No",
+        "cycling": "20",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "None",
+        "water": "3.2",
+        "sleep": "8.0",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-01",
+        "gym": "No",
+        "cycling": "25",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "None",
+        "water": "3.9",
+        "sleep": "6.5",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-02",
+        "gym": "No",
+        "cycling": "21",
+        "swimming": "0",
+        "running": "0",
+        "racketSport": "None",
+        "water": "3.7",
+        "sleep": "7.1",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-03",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "3.9",
+        "sleep": "7.6",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-04",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "3.8",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-05",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.1",
+        "sleep": "6.1",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-06",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "3.7",
+        "sleep": "7.9",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-07",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.6",
+        "sleep": "6.4",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-08",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "3.8",
+        "sleep": "6.2",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-09",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "3.6",
+        "sleep": "8.0",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-10",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.5",
+        "sleep": "6.9",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-11",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "3.5",
+        "sleep": "7.5",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-12",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.1",
+        "sleep": "7.1",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-13",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.4",
+        "sleep": "6.7",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-14",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.3",
+        "sleep": "6.3",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-15",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.1",
+        "sleep": "6.6",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-16",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "3.7",
+        "sleep": "7.4",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-17",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.7",
+        "sleep": "6.6",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-18",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "3.2",
+        "sleep": "7.7",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-19",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.3",
+        "sleep": "7.4",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-20",
+        "gym": "Yes",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "3.6",
+        "sleep": "6.9",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-21",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.8",
+        "sleep": "7.3",
+        "createdAt": "2026-07-19T16:43:55.670Z"
+    },
+    {
+        "date": "2025-06-22",
+        "gym": "No",
+        "cycling": "0",
+        "swimming": "50",
+        "running": "0",
+        "racketSport": "None",
+        "water": "2.0",
+        "sleep": "6.7",
+        "createdAt": "2026-07-19T16:43:55.670Z"
     }
-  ],
+
+],
   journal: [
     {
       topic: 'Finding Balance',
@@ -127,26 +2067,147 @@ const DUMMY_DATA = {
     }
   ],
   conversations: [
+
     {
-      prompt: "What's a startup idea you abandoned and why?",
-      category: "Startup",
-      isActive: "Yes",
-      createdAt: new Date().toISOString()
+        "prompt": "What's a startup idea you abandoned and why?",
+        "category": "Startup",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.560Z"
     },
     {
-      prompt: "If you could only read one book for the rest of your life, what would it be?",
-      category: "Personal",
-      isActive: "Yes",
-      createdAt: new Date().toISOString()
+        "prompt": "If you could only read one book for the rest of your life, what would it be?",
+        "category": "Personal",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
     },
     {
-      prompt: "Do you believe we are living in a simulation?",
-      category: "Philosophy",
-      isActive: "Yes",
-      isActive: "Yes",
-      createdAt: new Date().toISOString()
+        "prompt": "Do you believe we are living in a simulation?",
+        "category": "Philosophy",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "If you were to build a startup around digital twins today, what industry would you disrupt first?",
+        "category": "Startup",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "What's the hardest technical hurdle you faced while building MarketPulseAI?",
+        "category": "Startup",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "How do you see agentic AI changing the landscape of quantitative finance in the next 5 years?",
+        "category": "Startup",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "Why did you choose to build a conversational Data Science AI agent instead of a traditional dashboard?",
+        "category": "Startup",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "What's the biggest lesson you learned from scaling an EdTech platform to 600+ users?",
+        "category": "Startup",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "How does being a Formula Student driver change your perspective on risk and control?",
+        "category": "Philosophy",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "You've worked on optimizing thermal systems—do you apply optimization principles to your personal life?",
+        "category": "Philosophy",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "Is the pursuit of automation making us lose touch with fundamental engineering intuition?",
+        "category": "Philosophy",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "What does 'The Art of Simplification' mean to you when designing complex aerospace systems?",
+        "category": "Philosophy",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "If you could solve one global macroeconomic problem using causal reasoning, what would it be?",
+        "category": "Philosophy",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "What drives your obsession with financial problem-solving?",
+        "category": "Personal",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "Tell me about the most stressful moment you had while designing the aeroelastic digital twin at IISC.",
+        "category": "Personal",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "How did you manage to maintain a weekly cadence of 46 knowledge-sharing sessions while working full-time?",
+        "category": "Personal",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "What's the story behind the Ecomist Wind Turbine that won the institute product competition?",
+        "category": "Personal",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "Which has been more rewarding: building complex software pipelines or physically racing a vehicle you built?",
+        "category": "Personal",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "What's the most remote place you've traveled to, and how did it change your perspective?",
+        "category": "Travel",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "If you had a Land Rover Defender right now, what's the first cross-country road trip you'd take?",
+        "category": "Travel",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "How does traveling influence your approach to product design and engineering?",
+        "category": "Travel",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "What's a culture or city you've visited that felt like it was operating on a completely different 'system architecture'?",
+        "category": "Travel",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
+    },
+    {
+        "prompt": "If you could take a sabbatical to a quiet bungalow anywhere in the world to just write code and think, where would it be?",
+        "category": "Travel",
+        "isActive": "Yes",
+        "createdAt": "2026-07-19T16:50:36.561Z"
     }
-  ],
+
+],
   socials: [
     {
       platform: "Email",

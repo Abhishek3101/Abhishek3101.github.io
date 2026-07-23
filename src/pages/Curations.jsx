@@ -21,7 +21,7 @@ export default function Curations() {
         if (d.category === 'Book') { shelf = 1; type = 'book'; }
         if (d.category === 'Music') { shelf = 2; type = 'vinyl'; }
         if (d.category === 'Movie') { shelf = 2; type = 'video'; }
-        if (d.category === 'Article') { shelf = 3; type = 'article'; }
+        if (d.category === 'Article' || d.category === 'Article/Video') { shelf = 3; type = 'article'; }
 
         return {
           id: doc.id,
